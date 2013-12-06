@@ -1,7 +1,5 @@
-Distributed-Indexing-MapReduce
+EnWikiIndexing
 ==============================
 
-Sample Application for doing distributed indexing using Hadoop MapReduce
+A simple program for creating inverted indexes for English Wikipedia dump using Hadoop.
 
-For more information about the code, you can read it in my blog here:
-http://arifn.web.id/blog/2012/05/15/programming-hadoop-in-eclipse.html
