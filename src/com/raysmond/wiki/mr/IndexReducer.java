@@ -3,6 +3,7 @@ package com.raysmond.wiki.mr;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeMap;
 
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.OutputCollector;
@@ -11,6 +12,8 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.io.Text;
 
 import com.raysmond.wiki.writable.DocSumWritable;
+import com.raysmond.wiki.writable.IndexList;
+import com.raysmond.wiki.writable.MapOutput;
 
 /**
  * IndexReducer class
@@ -19,33 +22,39 @@ import com.raysmond.wiki.writable.DocSumWritable;
  * 
  */
 public class IndexReducer extends MapReduceBase implements
-		Reducer<Text, Text, Text, DocSumWritable> {
+		Reducer<Text, MapOutput, Text, IndexList> {
 
-	private HashMap<String, Integer> map;
+	private TreeMap<String,MapOutput> map;
 
-	private void addWord(String tag) {
-		Integer val;
-
-		if (map.get(tag) != null) {
-			val = map.get(tag);
-			map.remove(tag);
+	private void addIndex(String articleId, MapOutput index) {
+//		MapOutput val;
+//		val = map.get(articleId);
+		if (map.get(articleId) != null) {
+			// not allowed 
+			return;
 		} else {
-			val = 0;
+			System.out.println("put("+articleId+":"+index.toString()+")");
+			map.put(articleId, index);
 		}
-
-		map.put(tag, val + 1);
 	}
 
 	@Override
-	public void reduce(Text key, Iterator<Text> values,
-			OutputCollector<Text, DocSumWritable> output, Reporter reporter)
+	public void reduce(Text key, Iterator<MapOutput> values,
+			OutputCollector<Text, IndexList> output, Reporter reporter)
 			throws IOException {
-		map = new HashMap<String, Integer>();
-
-		while (values.hasNext()) {
-			addWord(values.next().toString());
+		map = new TreeMap<String,MapOutput>();
+		System.out.println(key+":");
+		while(values.hasNext()){
+			MapOutput index = values.next();
+			this.addIndex(index.getArticleId(), index);
 		}
-
-		output.collect(key, new DocSumWritable(map));
+		Iterator<String> keys = map.keySet().iterator();
+		while(keys.hasNext()){
+			String articleId = keys.next();
+			System.out.print(articleId+":");
+		    System.out.print(map.get(articleId).toString());
+		}
+		System.out.println();
+		output.collect(key, new IndexList(map));
 	}
 }

@@ -51,7 +51,8 @@ public class WikiIndexJob implements Callable<String> {
 
 		conf.setMapOutputKeyClass(org.apache.hadoop.io.Text.class);
 		
-		conf.setMapOutputValueClass(org.apache.hadoop.io.Text.class);
+		//conf.setMapOutputValueClass(org.apache.hadoop.io.Text.class);
+		conf.setMapOutputValueClass(com.raysmond.wiki.writable.MapOutput.class);
 
 		conf.setPartitionerClass(org.apache.hadoop.mapred.lib.HashPartitioner.class);
 		

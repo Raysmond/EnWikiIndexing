@@ -5,6 +5,8 @@ import info.bliki.wiki.model.WikiModel;
 
 import java.io.IOException;
 import java.nio.charset.CharacterCodingException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -15,6 +17,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 
 import com.raysmond.wiki.util.StringUtils;
+import com.raysmond.wiki.writable.MapOutput;
 
 /**
  * IndexMapper class
@@ -23,8 +26,9 @@ import com.raysmond.wiki.util.StringUtils;
  * 
  */
 public class IndexMapper extends MapReduceBase implements
-		Mapper<LongWritable, Text, Text, Text> {
+		Mapper<LongWritable, Text, Text, MapOutput> {
 
+	private HashMap<String,MapOutput> result;
 	/**
 	 * Map method
 	 * 
@@ -36,11 +40,11 @@ public class IndexMapper extends MapReduceBase implements
 	 */
 	@Override
 	public void map(LongWritable key, Text value,
-			OutputCollector<Text, Text> output, Reporter reporter)
+			OutputCollector<Text, MapOutput> output, Reporter reporter)
 			throws IOException {
 
-		// String id = this.parseXMLTag("id", value);
-		String title = this.parseXMLTag("title", value);
+		String id = this.parseXMLTag("id", value);
+		//String title = this.parseXMLTag("title", value);
 		String content = this.parseXMLText(value);
 
 		String plainStr = this.cleanText(content);
@@ -53,11 +57,35 @@ public class IndexMapper extends MapReduceBase implements
 //		}
 		
 		String[] words = plainStr.split("\\s+");
+		int pos = 0;
+		result = new HashMap<String,MapOutput>();
 		for(String word: words){
 			//word = word.replaceAll("[^\\w]", "");
-			output.collect(new Text(word.toLowerCase()), new Text(title));
+			//output.collect(new Text(word.toLowerCase()), new Text(id));
+			this.addWord(id,word,pos++);
+		}
+		Iterator<String> it = result.keySet().iterator();
+		while(it.hasNext()){
+			String word = it.next();
+			System.out.println(word+":");
+			System.out.println(result.get(word));
+			System.out.println();
+			output.collect(new Text(word.toLowerCase()), result.get(word));
 		}
 		
+	}
+	
+	public void addWord(String articleId,String word, Integer position){
+		MapOutput output = result.get(word);
+		if(output!=null){
+			output.addPosition(position);
+			result.remove(word);
+		}
+		else{
+			output = new MapOutput(articleId);
+			output.addPosition(position);
+		}
+		result.put(word, output);
 	}
 
 	/**
@@ -96,7 +124,7 @@ public class IndexMapper extends MapReduceBase implements
 		if (start == -1 || end == -1) {
 			return "";
 		} else {
-			start += tag.length() + 2;
+			start += tag.length();
 			return Text.decode(article.getBytes(), start, end - start);
 		}
 	}
