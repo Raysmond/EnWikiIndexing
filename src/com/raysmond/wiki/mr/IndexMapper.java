@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.charset.CharacterCodingException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.StringTokenizer;
 
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
@@ -17,7 +16,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 
 import com.raysmond.wiki.util.StringUtils;
-import com.raysmond.wiki.writable.MapOutput;
+import com.raysmond.wiki.writable.WordIndex;
 
 /**
  * IndexMapper class
@@ -26,9 +25,10 @@ import com.raysmond.wiki.writable.MapOutput;
  * 
  */
 public class IndexMapper extends MapReduceBase implements
-		Mapper<LongWritable, Text, Text, MapOutput> {
+		Mapper<LongWritable, Text, Text, WordIndex> {
 
-	private HashMap<String,MapOutput> result;
+	private HashMap<String,WordIndex> result;
+	
 	/**
 	 * Map method
 	 * 
@@ -40,7 +40,7 @@ public class IndexMapper extends MapReduceBase implements
 	 */
 	@Override
 	public void map(LongWritable key, Text value,
-			OutputCollector<Text, MapOutput> output, Reporter reporter)
+			OutputCollector<Text, WordIndex> output, Reporter reporter)
 			throws IOException {
 
 		String id = this.parseXMLTag("id", value);
@@ -58,7 +58,7 @@ public class IndexMapper extends MapReduceBase implements
 		
 		String[] words = plainStr.split("\\s+");
 		int pos = 0;
-		result = new HashMap<String,MapOutput>();
+		result = new HashMap<String,WordIndex>();
 		for(String word: words){
 			//word = word.replaceAll("[^\\w]", "");
 			//output.collect(new Text(word.toLowerCase()), new Text(id));
@@ -67,22 +67,19 @@ public class IndexMapper extends MapReduceBase implements
 		Iterator<String> it = result.keySet().iterator();
 		while(it.hasNext()){
 			String word = it.next();
-			System.out.println(word+":");
-			System.out.println(result.get(word));
-			System.out.println();
 			output.collect(new Text(word.toLowerCase()), result.get(word));
 		}
 		
 	}
 	
 	public void addWord(String articleId,String word, Integer position){
-		MapOutput output = result.get(word);
+		WordIndex output = result.get(word);
 		if(output!=null){
 			output.addPosition(position);
 			result.remove(word);
 		}
 		else{
-			output = new MapOutput(articleId);
+			output = new WordIndex(articleId);
 			output.addPosition(position);
 		}
 		result.put(word, output);

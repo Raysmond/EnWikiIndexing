@@ -6,18 +6,19 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 public class IndexList implements Writable{
 	
-	// Article id to MapOutput, TreeMap sorts results by article id automatically
-	private TreeMap<String,MapOutput> map = new TreeMap<String,MapOutput>();
+	// Article id to WikiIndex, TreeMap sorts results by article id automatically
+	private TreeMap<String,WordIndex> map = new TreeMap<String,WordIndex>();
 	
 	public IndexList(){
 		
 	}
 	
-	public IndexList(TreeMap<String,MapOutput> map){
+	public IndexList(TreeMap<String,WordIndex> map){
 		this.map = map;
 	}
 	
@@ -25,7 +26,7 @@ public class IndexList implements Writable{
 	public void readFields(DataInput in) throws IOException {
 		Iterator<String> keys = map.keySet().iterator();
 		while(keys.hasNext()){
-		     MapOutput output = new MapOutput();
+		     WordIndex output = new WordIndex();
 		     output.readFields(in);
 		     map.put(output.getArticleId(), output);
 		}
@@ -35,7 +36,7 @@ public class IndexList implements Writable{
 	public void write(DataOutput out) throws IOException {
 		Iterator<String> keys = map.keySet().iterator();
 		while(keys.hasNext()){
-		     MapOutput output = map.get(keys.next());
+		     WordIndex output = map.get(keys.next());
 		     output.write(out);
 		}
 	}

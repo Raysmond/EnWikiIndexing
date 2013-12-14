@@ -3,6 +3,7 @@ package com.raysmond.wiki.job;
 import java.util.concurrent.Callable;
 
 import javax.xml.soap.Text;
+
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
@@ -11,7 +12,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RunningJob;
 
 import com.raysmond.wiki.mr.XmlInputFormat;
-import com.raysmond.wiki.writable.DocSumWritable;
+import com.raysmond.wiki.writable.IndexList;
 
 public class WikiIndexJob implements Callable<String> {
 
@@ -52,7 +53,7 @@ public class WikiIndexJob implements Callable<String> {
 		conf.setMapOutputKeyClass(org.apache.hadoop.io.Text.class);
 		
 		//conf.setMapOutputValueClass(org.apache.hadoop.io.Text.class);
-		conf.setMapOutputValueClass(com.raysmond.wiki.writable.MapOutput.class);
+		conf.setMapOutputValueClass(com.raysmond.wiki.writable.WordIndex.class);
 
 		conf.setPartitionerClass(org.apache.hadoop.mapred.lib.HashPartitioner.class);
 		
@@ -66,7 +67,7 @@ public class WikiIndexJob implements Callable<String> {
 		
 		conf.setOutputFormat(org.apache.hadoop.mapred.TextOutputFormat.class);
 		
-		conf.setOutputValueClass(DocSumWritable.class);
+		conf.setOutputValueClass(com.raysmond.wiki.writable.IndexList.class);
 	}
 	
 	// getters and setters
