@@ -35,8 +35,7 @@ public class IndexReducer extends MapReduceBase implements
 			String aid = index.getArticleId();
 			if (map.get(aid) == null) {
 				// deep copy the object, or the values will all be same
-				map.put(aid, new WordIndex(new String(aid), index.getTimes(),
-						index.getPositions()));
+				map.put(aid, new WordIndex(new String(aid), index.getPositions()));
 			}
 		}
 		output.collect(key, new IndexList(map));

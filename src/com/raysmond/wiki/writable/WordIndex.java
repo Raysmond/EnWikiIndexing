@@ -15,9 +15,6 @@ public class WordIndex implements Writable {
 	// The unique id of the page
 	private String articleId;
 
-	// How many times a word appears in the page. Equals to positions' size
-	private int times = 0;
-
 	// The positions in term of word offset where a word appears
 	private HashSet<Integer> positions = new HashSet<Integer>();
 
@@ -27,29 +24,25 @@ public class WordIndex implements Writable {
 
 	public WordIndex(String articleId) {
 		this.articleId = articleId;
-		this.times = 0;
 	}
 
-	public WordIndex(String articleId, int times, HashSet<Integer> positions) {
+	public WordIndex(String articleId, HashSet<Integer> positions) {
 		this.articleId = articleId;
-		this.times = times;
 		this.positions = positions;
 	}
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
 		articleId = Text.readString(in);
-		times = in.readInt();
-		positions = new HashSet<Integer>();
-		for (int i = 0; i < times; i++) {
+		Iterator<Integer> it = positions.iterator();
+		while (it.hasNext()) {
 			positions.add(in.readInt());
-		}
+		}		
 	}
 
 	@Override
 	public void write(DataOutput out) throws IOException {
 		Text.writeString(out, articleId);
-		out.writeInt(times);
 		Iterator<Integer> it = positions.iterator();
 		while (it.hasNext()) {
 			out.writeInt(it.next());
@@ -59,30 +52,20 @@ public class WordIndex implements Writable {
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("{");
 		str.append(articleId).append(" ");
-		str.append(times).append(" ");
 		Iterator<Integer> it = positions.iterator();
-		str.append("(");
 		while (it.hasNext()) {
 			str.append(it.next()).append(" ");
 		}
-		str.append(")}");
 		return str.toString();
 	}
 
-	public void addPosition(Integer pos) {
-		if (this.positions.add(pos)) {
-			this.times++;
-		}
+	public boolean addPosition(Integer pos) {
+		return positions.add(pos);
 	}
 
 	public String getArticleId() {
 		return this.articleId;
-	}
-
-	public int getTimes() {
-		return this.times;
 	}
 
 	public HashSet<Integer> getPositions() {
