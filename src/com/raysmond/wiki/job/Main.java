@@ -10,6 +10,6 @@ public class Main {
 			job.setOutputPath(args[1]);
 
 		job.call();
-		job.getRunningJob().waitForCompletion();
+		//job.getRunningJob().waitForCompletion();
 	}
 }

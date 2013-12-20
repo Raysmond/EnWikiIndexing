@@ -3,10 +3,8 @@ package com.raysmond.wiki.writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;

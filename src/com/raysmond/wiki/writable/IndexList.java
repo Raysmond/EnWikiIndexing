@@ -5,8 +5,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.TreeMap;
-
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 public class IndexList implements Writable{
