@@ -12,7 +12,6 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RunningJob;
 
 import com.raysmond.wiki.mr.XmlInputFormat;
-import com.raysmond.wiki.writable.IndexList;
 
 public class WikiIndexJob implements Callable<String> {
 
@@ -44,7 +43,6 @@ public class WikiIndexJob implements Callable<String> {
 		return runningJob.getID().toString();
 	}
 
-	@SuppressWarnings("unchecked")
 	public static void initJobConf(JobConf conf) {
 		conf.setInputFormat(org.apache.hadoop.mapred.TextInputFormat.class);
 
