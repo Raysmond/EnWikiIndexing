@@ -11,6 +11,13 @@ import java.util.Set;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
+/**
+ * WordIndex
+ * An word index contains an article ID and a list of positions where the word appears. 
+ * The word it self is stored outside of WordIndex.
+ * 
+ * @author Raysmond
+ */
 public class WordIndex implements Writable {
 	// The unique id of the page
 	private String articleId;
