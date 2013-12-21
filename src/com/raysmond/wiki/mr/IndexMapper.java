@@ -1,5 +1,4 @@
 package com.raysmond.wiki.mr;
-
 import info.bliki.wiki.filter.PlainTextConverter;
 import info.bliki.wiki.model.WikiModel;
 
@@ -8,70 +7,58 @@ import java.nio.charset.CharacterCodingException;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
 
 import com.raysmond.wiki.util.StringUtils;
 import com.raysmond.wiki.writable.WordIndex;
 
 /**
- * IndexMapper class
+ * IndexMapper class.
+ * The map will receive a page in XML form, and resolve it into words and inverted indexes.
+ * The word index in the page contains the current page ID and all positions where it appears
+ * in term of word offset.
  * 
- * @author Raysmond
- * 
+ * @author Raysmond, Junshi Guo
  */
-public class IndexMapper extends MapReduceBase implements
-		Mapper<LongWritable, Text, Text, WordIndex> {
-
-	private HashMap<String,WordIndex> result;
+public class IndexMapper extends Mapper<LongWritable,Text,Text,WordIndex> {
 	
+	// Word to index map
+	private HashMap<String,WordIndex> result;
+
 	/**
 	 * Map method
-	 * 
-	 * @param value
-	 *            Text all XML content of a single page within <page> </page>
-	 * @param output
-	 *            OutputCollector<Text,Text> the first text is a word and the
-	 *            second is the title (id maybe better) of the article
+	 * @param value Text a wiki page in XML form
 	 */
-	@Override
-	public void map(LongWritable key, Text value,
-			OutputCollector<Text, WordIndex> output, Reporter reporter)
-			throws IOException {
-
+	public void map(LongWritable key, Text value, Context context)
+			throws IOException, InterruptedException {
 		String id = this.parseXMLTag("id", value);
-		//String title = this.parseXMLTag("title", value);
 		String content = this.parseXMLText(value);
-
 		String plainStr = this.cleanText(content);
-
-//		StringTokenizer tokenizer = new StringTokenizer(plainStr);
-//		while (tokenizer.hasMoreTokens()) {
-//			String token = tokenizer.nextToken();
-//
-//			output.collect(new Text(token.toLowerCase()), new Text(title));
-//		}
 		
 		String[] words = plainStr.split("\\s+");
 		int pos = 0;
 		result = new HashMap<String,WordIndex>();
 		for(String word: words){
 			//word = word.replaceAll("[^\\w]", "");
-			//output.collect(new Text(word.toLowerCase()), new Text(id));
 			this.addWord(id,word,pos++);
 		}
+		
 		Iterator<String> it = result.keySet().iterator();
 		while(it.hasNext()){
 			String word = it.next();
-			output.collect(new Text(word.toLowerCase()), result.get(word));
+			System.out.println(result.get(word).toString());
+			context.write(new Text(word.toLowerCase()), result.get(word));
 		}
-		
 	}
 	
+	/**
+	 * Add a word in a page and update the indexes.
+	 * @param articleId page ID
+	 * @param word a word in page
+	 * @param position word offset in the page
+	 */
 	public void addWord(String articleId,String word, Integer position){
 		WordIndex output = result.get(word);
 		if(output!=null){
@@ -84,7 +71,7 @@ public class IndexMapper extends MapReduceBase implements
 		}
 		result.put(word, output);
 	}
-
+	
 	/**
 	 * Parse article XML
 	 * 
@@ -151,4 +138,5 @@ public class IndexMapper extends MapReduceBase implements
 
 		return plainStr;
 	}
+	
 }
