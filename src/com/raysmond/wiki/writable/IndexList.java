@@ -51,7 +51,10 @@ public class IndexList implements Writable{
 		StringBuilder str = new StringBuilder();
 		Iterator<String> keys = map.keySet().iterator();
 		while(keys.hasNext()){
-			str.append(map.get(keys.next()).toString()).append("\t");
+			//str.append("{").append(map.get(keys.next()).toString()).append("}");
+			str.append(map.get(keys.next()).toString()).append(" | ");
+			//if(keys.hasNext())
+			//	str.append(",");
 		}
 		return str.toString();
 	}

@@ -64,7 +64,10 @@ public class WikiIndexJob {
 		
 		// Input path
 		FileInputFormat.addInputPath(job, new Path(getInputPath()));
-		System.exit(job.waitForCompletion(true)?0:1);
+		
+		 long startTime = System.currentTimeMillis();
+		job.waitForCompletion(true);
+		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
 	}
 
 	/**

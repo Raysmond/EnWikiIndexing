@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.nio.charset.CharacterCodingException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -34,21 +37,24 @@ public class IndexMapper extends Mapper<LongWritable,Text,Text,WordIndex> {
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
 		String id = this.parseXMLTag("id", value);
-		String content = this.parseXMLText(value);
-		String plainStr = this.cleanText(content);
+		String title = this.parseXMLTag("title", value);
+		String content = title + "\n"+ this.parseXMLText(value);
+		//String plainStr = this.cleanText(content);
+		String text = this.getPlainText(content);
 		
-		String[] words = plainStr.split("\\s+");
 		int pos = 0;
 		result = new HashMap<String,WordIndex>();
+		
+//		String[] words = text.split("\\s+");
+		String[] words = text.split("[\\s+|[\\p{Punct}]+]+");
 		for(String word: words){
-			//word = word.replaceAll("[^\\w]", "");
 			this.addWord(id,word,pos++);
 		}
 		
 		Iterator<String> it = result.keySet().iterator();
 		while(it.hasNext()){
 			String word = it.next();
-			System.out.println(result.get(word).toString());
+			//context.write(new Text(word.toLowerCase()), new WordIndex(result.get(word)));
 			context.write(new Text(word.toLowerCase()), result.get(word));
 		}
 	}
@@ -63,13 +69,14 @@ public class IndexMapper extends Mapper<LongWritable,Text,Text,WordIndex> {
 		WordIndex output = result.get(word);
 		if(output!=null){
 			output.addPosition(position);
-			result.remove(word);
+			//result.remove(word);
 		}
 		else{
 			output = new WordIndex(articleId);
 			output.addPosition(position);
+			result.put(word, output);
 		}
-		result.put(word, output);
+		
 	}
 	
 	/**
@@ -114,6 +121,22 @@ public class IndexMapper extends Mapper<LongWritable,Text,Text,WordIndex> {
 	}
 	
 
+	// Explictly remove <ref>...</ref>, because there are screwy things like this:
+	  // <ref>[http://www.interieur.org/<!-- Bot generated title -->]</ref>
+	  // where "http://www.interieur.org/<!--" gets interpreted as the URL by
+	  // Bliki in conversion to text
+	  private static final Pattern REF = Pattern.compile("<ref>.*?</ref>");
+
+	  private static final Pattern LANG_LINKS = Pattern.compile("\\[\\[[a-z\\-]+:[^\\]]+\\]\\]");
+	  private static final Pattern DOUBLE_CURLY = Pattern.compile("\\{\\{.*?\\}\\}");
+
+	  private static final Pattern URL = Pattern.compile("http://[^ <]+"); // Note, don't capture
+	                                                                       // possible HTML tag
+
+	  private static final Pattern HTML_TAG = Pattern.compile("<[^!][^>]*>"); // Note, don't capture
+	                                                                          // comments
+	  private static final Pattern HTML_COMMENT = Pattern.compile("<!--.*?-->", Pattern.DOTALL);
+	  
 	/**
 	 * Get plain text from XML text
 	 * @param text
@@ -137,6 +160,33 @@ public class IndexMapper extends Mapper<LongWritable,Text,Text,WordIndex> {
 				.replaceAll("\\{\\{[A-Za-z+\\s-]+\\}\\}", " ");
 
 		return plainStr;
+	}
+	
+	private String getPlainText(String s){
+		WikiModel wikiModel = new WikiModel("", "");
+		PlainTextConverter textConverter = new PlainTextConverter();
+	    
+		 // Bliki doesn't seem to properly handle inter-language links, so remove manually.
+	    s = LANG_LINKS.matcher(s).replaceAll(" ");
+
+	    wikiModel.setUp();
+	    s = wikiModel.render(textConverter, s);
+	    wikiModel.tearDown();
+
+	    // The way the some entities are encoded, we have to unescape twice.
+	    s = StringEscapeUtils.unescapeHtml(StringEscapeUtils.unescapeHtml(s));
+
+	    s = REF.matcher(s).replaceAll(" ");
+	    s = HTML_COMMENT.matcher(s).replaceAll(" ");
+
+	    // Sometimes, URL bumps up against comments e.g., <!-- http://foo.com/-->
+	    // Therefore, we want to remove the comment first; otherwise the URL pattern might eat up
+	    // the comment terminator.
+	    s = URL.matcher(s).replaceAll(" ");
+	    s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
+	    s = HTML_TAG.matcher(s).replaceAll(" ");
+	    
+	    return s;
 	}
 	
 }

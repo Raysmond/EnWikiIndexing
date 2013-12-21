@@ -31,16 +31,13 @@ public class IndexReducer extends TableReducer<Text, WordIndex, Text> {
 		while (it.hasNext()) {
 			WordIndex index = it.next();
 			String aid = index.getArticleId();
-			// TODO why position list is empty?
-			System.out.println(aid + ":" + index.getPositions());
 			if (map.get(aid) == null) {
 				// deep copy the object, or the values will all be same
-				map.put(aid, new WordIndex(new String(aid), index.getPositions()));
+				map.put(aid, new WordIndex(index));
 			}
 		}
 
-	    System.out.println(key.toString() + ": " +(new IndexList(map)).toString());
-
+	   // System.out.println(key.toString() + ": " +(new IndexList(map)).toString());
 		Put put = new Put(key.getBytes());
 		put.add(Bytes.toBytes("content"), Bytes.toBytes("index"), Bytes.toBytes((new IndexList(map)).toString()));
 		context.write(new Text(key), put);

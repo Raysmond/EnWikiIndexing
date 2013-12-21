@@ -50,7 +50,7 @@
       </contributor>
       <minor />
       <comment>[[Help:Reverting|Reverted]] edits by [[Special:Contributions/76.28.186.133|76.28.186.133]] ([[User talk:76.28.186.133|talk]]) to last version by Gurch</comment>
-      <text xml:space="preserve">apple fish hello raysmond. This is a test page.</text>
+      <text xml:space="preserve">apple fish hello raysmond. This is a test page. &lt;ref name=&quot;iaf-ifa.org&quot;/&gt;&lt;ref&gt;&quot; [[Benjamin Tucker]]</text>
       <sha1>lo15ponaybcg2sf49sstw9gdjmdetnk</sha1>
       <model>wikitext</model>
       <format>text/x-wiki</format>

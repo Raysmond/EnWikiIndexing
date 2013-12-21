@@ -3,10 +3,13 @@ package com.raysmond.wiki.writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.WritableComparable;
 
 
@@ -22,36 +25,44 @@ public class WordIndex implements WritableComparable {
 	private String articleId;
 
 	// The positions in term of word offset where a word appears
-	private HashSet<Integer> positions = new HashSet<Integer>();
+	// private HashSet<Integer> positions = new HashSet<Integer>();
+	private ArrayList<Integer> positions = new ArrayList<Integer>();
+	
+	private int positionCount = 0;
 
 	public WordIndex() {
 
 	}
+	
+	public WordIndex(WordIndex index){
+		this.articleId = new String(index.articleId);
+		this.positionCount = index.positionCount;
+		for(Integer val: index.getPositions()){
+			positions.add(val);
+		}
+	}
 
 	public WordIndex(String articleId) {
 		this.articleId = articleId;
-	}
-
-	public WordIndex(String articleId, HashSet<Integer> positions) {
-		this.articleId = articleId;
-		this.positions = positions;
+		positionCount = 0;
 	}
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
 		articleId = Text.readString(in);
-		Iterator<Integer> it = positions.iterator();
-		while (it.hasNext()) {
-			positions.add(in.readInt());
-		}		
+		positionCount = in.readInt();
+		positions = new ArrayList<Integer>();
+	    for(int i=0;i<positionCount;i++){
+	    	positions.add(in.readInt());
+	    }
 	}
 
 	@Override
 	public void write(DataOutput out) throws IOException {
 		Text.writeString(out, articleId);
-		Iterator<Integer> it = positions.iterator();
-		while (it.hasNext()) {
-			out.writeInt(it.next());
+		out.writeInt(positionCount);
+		for(Integer val: positions){
+			out.writeInt(val);
 		}
 	}
 
@@ -59,22 +70,27 @@ public class WordIndex implements WritableComparable {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 		str.append(articleId).append(" ");
-		Iterator<Integer> it = positions.iterator();
-		while (it.hasNext()) {
-			str.append(it.next()).append(" ");
+		//str.append(positionCount).append(" ");
+		for(Integer val: positions){
+			str.append(val).append(" ");
 		}
 		return str.toString();
 	}
 
+	
 	public boolean addPosition(Integer pos) {
-		return positions.add(pos);
+		 if(positions.add(pos)){
+			 positionCount++;
+			 return true;
+		 }
+		 return false;
 	}
 
 	public String getArticleId() {
 		return this.articleId;
 	}
 
-	public HashSet<Integer> getPositions() {
+	public ArrayList<Integer> getPositions() {
 		return this.positions;
 	}
 
