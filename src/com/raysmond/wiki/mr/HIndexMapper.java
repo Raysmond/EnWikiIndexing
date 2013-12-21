@@ -30,12 +30,10 @@ public class HIndexMapper extends Mapper<LongWritable,Text,Text,WordIndex> {
 			//word = word.replaceAll("[^\\w]", "");
 			//output.collect(new Text(word.toLowerCase()), new Text(id));
 			this.addWord(id,word,pos++);
-			//System.out.println(id+" "+word);
 		}
 		Iterator<String> it = result.keySet().iterator();
 		while(it.hasNext()){
 			String word = it.next();
-			System.out.println(word.toLowerCase()+": "+result.get(word).toString()); 
 			context.write(new Text(word.toLowerCase()), result.get(word));
 		}
 	}

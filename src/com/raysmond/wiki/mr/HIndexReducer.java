@@ -17,10 +17,10 @@ import com.raysmond.wiki.writable.WordIndex;
  * @author Raysmond
  * 
  */
-public class HIndexReducer extends TableReducer<Text, WordIndex, Text>{
+public class HIndexReducer extends TableReducer<Text, WordIndex, Text> {
 	private TreeMap<String, WordIndex> map;
 
-	public void reduce(Text key, Iterable<WordIndex> values,Context context)
+	public void reduce(Text key, Iterable<WordIndex> values, Context context)
 			throws IOException, InterruptedException {
 		map = new TreeMap<String, WordIndex>();
 
@@ -30,36 +30,17 @@ public class HIndexReducer extends TableReducer<Text, WordIndex, Text>{
 			String aid = index.getArticleId();
 			if (map.get(aid) == null) {
 				// deep copy the object, or the values will all be same
-				map.put(aid, new WordIndex(new String(aid), index.getPositions()));
+				map.put(aid,
+						new WordIndex(new String(aid), index.getPositions()));
 			}
 		}
-		
+
 		System.out.println(key.toString());
 		System.out.println(map.toString());
-		
+
 		Put put = new Put(key.getBytes());
-		//put.add(Bytes.toBytes("content"), Bytes.toBytes("index"),
-		//		Bytes.toBytes((new IndexList(map)).toString()));
+		put.add(Bytes.toBytes("content"), Bytes.toBytes("index"),
+				Bytes.toBytes((new IndexList(map)).toString()));
 		context.write(new Text(key), put);
 	}
-
-
-/*	private TreeMap<String, WordIndex> map;
-
-	@Override
-	public void reduce(Text key, Iterator<WordIndex> values,
-			OutputCollector<Text, IndexList> output, Reporter reporter)
-			throws IOException {
-		map = new TreeMap<String, WordIndex>();
-
-		while (values.hasNext()) {
-			WordIndex index = values.next();
-			String aid = index.getArticleId();
-			if (map.get(aid) == null) {
-				// deep copy the object, or the values will all be same
-				map.put(aid, new WordIndex(new String(aid), index.getPositions()));
-			}
-		}
-		output.collect(key, new IndexList(map));
-	}*/
 }
