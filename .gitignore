@@ -1,4 +1,7 @@
 *.class
+*.jar
+*.classpath
+target
 input
 output
 release

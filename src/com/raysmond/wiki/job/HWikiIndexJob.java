@@ -1,62 +1,64 @@
 package com.raysmond.wiki.job;
 
 import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-
 import com.raysmond.wiki.mr.HIndexMapper;
 import com.raysmond.wiki.mr.HIndexReducer;
 import com.raysmond.wiki.mr.XmlInputFormat;
+import com.raysmond.wiki.writable.WordIndex;
 
-public class HWikiIndexJob{
+public class HWikiIndexJob {
 
 	private String inputPath;
 
 	private String outputPath;
-
-	private RunningJob runningJob;
-
+	
 	public void call() throws Exception {
 		//create table
 		String tableName = "wikiIndex";
 		HWikiIndexJob.createHBaseTable(tableName);
 		//configure mapreduce
 		Configuration conf = new Configuration();
-		conf.set("mapred.job.tracker", "localhost:9001");
-		conf.set("hbase.zookeeper.quorum", "localhost");
-		conf.set("hbase.zookeeper.property.clientPort", "2222");
+		//conf.set("mapred.job.tracker", "localhost:9001");
+		//conf.set("hbase.zookeeper.quorum", "localhost");
+		//conf.set("hbase.zookeeper.property.clientPort", "2222");
 		conf.set(TableOutputFormat.OUTPUT_TABLE, tableName);
 		//input format
-		conf.set(XmlInputFormat.START_TAG_KEY, "<page>");
-		conf.set(XmlInputFormat.END_TAG_KEY, "</page>");
-		((JobConf) conf).setInputFormat(XmlInputFormat.class);
+		//conf.set(XmlInputFormat.START_TAG_KEY, "<page>");
+		//conf.set(XmlInputFormat.END_TAG_KEY, "</page>");
 		
 		Job job = new Job(conf, "Wiki Index by HBase");
-		job.setJarByClass(getClass());
+		job.setJarByClass(HWikiIndexJob.class);
 		//Mapper and Reducer
 		job.setMapperClass(HIndexMapper.class);
 		job.setReducerClass(HIndexReducer.class);
+		//job.setNumReduceTasks(1);
 		//output type
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(Text.class);
+		job.setMapOutputValueClass(WordIndex.class);
+		
+		TableMapReduceUtil.initTableReducerJob("wikiIndex", HIndexReducer.class, job); 
+		
 		//output format
+		job.setInputFormatClass(XmlInputFormat.class);
 		job.setOutputFormatClass(TableOutputFormat.class);		
 		// Input path
 		FileInputFormat.addInputPath(job, new Path(getInputPath()));
-		if (getOutputPath() != null)
-			FileOutputFormat.setOutputPath(job, new Path(getOutputPath()));
-
+		//if (getOutputPath() != null)
+		//	FileOutputFormat.setOutputPath(job, new Path(getOutputPath()));
+		
+		
 		System.exit(job.waitForCompletion(true)?0:1);
 	}
 
@@ -71,8 +73,8 @@ public class HWikiIndexJob{
 		// 配置 HBase
 		Configuration conf = HBaseConfiguration.create();
 
-		conf.set("hbase.zookeeper.quorum", "localhost");
-		conf.set("hbase.zookeeper.property.clientPort", "2222");
+		//conf.set("hbase.zookeeper.quorum", "localhost");
+		//conf.set("hbase.zookeeper.property.clientPort", "2222");
 		HBaseAdmin hAdmin = new HBaseAdmin(conf);
 
 		if (hAdmin.tableExists(tableName)) {
@@ -102,9 +104,5 @@ public class HWikiIndexJob{
 	public String getOutputPath() {
 		return outputPath;
 	}
-
-	public RunningJob getRunningJob() {
-		return runningJob;
-	}
-
+	
 }

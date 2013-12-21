@@ -7,9 +7,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
-public class WordIndex implements Writable {
+public class WordIndex implements WritableComparable {
 	// The unique id of the page
 	private String articleId;
 
@@ -68,5 +68,10 @@ public class WordIndex implements Writable {
 
 	public HashSet<Integer> getPositions() {
 		return this.positions;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		return this.articleId.compareTo(((WordIndex)o).articleId);
 	}
 }
