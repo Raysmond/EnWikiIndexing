@@ -75,8 +75,8 @@ public class WordCountHBase {
 		// 配置 HBase
 		Configuration conf = HBaseConfiguration.create();
 
-		conf.set("hbase.zookeeper.quorum", "localhost");
-		conf.set("hbase.zookeeper.property.clientPort", "2222");
+//		conf.set("hbase.zookeeper.quorum", "localhost");
+//		conf.set("hbase.zookeeper.property.clientPort", "2222");
 		HBaseAdmin hAdmin = new HBaseAdmin(conf);
 
 		if (hAdmin.tableExists(tableName)) {
@@ -98,9 +98,9 @@ public class WordCountHBase {
 		// 配置 MapReduce
 		Configuration conf = new Configuration();
 		// 这几句话很关键
-		conf.set("mapred.job.tracker", "localhost:9001");
-		conf.set("hbase.zookeeper.quorum", "localhost");
-		conf.set("hbase.zookeeper.property.clientPort", "2222");
+//		conf.set("mapred.job.tracker", "localhost:9001");
+//		conf.set("hbase.zookeeper.quorum", "localhost");
+//		conf.set("hbase.zookeeper.property.clientPort", "2222");
 		conf.set(TableOutputFormat.OUTPUT_TABLE, tableName);
 
 		Job job = new Job(conf, "New Word Count");
