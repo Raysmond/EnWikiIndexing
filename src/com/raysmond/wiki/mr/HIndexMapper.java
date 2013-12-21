@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import com.raysmond.wiki.util.StringUtils;
 import com.raysmond.wiki.writable.WordIndex;
 
-public class HIndexMapper extends Mapper<LongWritable,Text,Text,Text> {
+public class HIndexMapper extends Mapper<LongWritable,Text,Text,WordIndex> {
 	private HashMap<String,WordIndex> result;
 
 	public void map(LongWritable key, Text value, Context context)
@@ -34,7 +34,7 @@ public class HIndexMapper extends Mapper<LongWritable,Text,Text,Text> {
 		Iterator<String> it = result.keySet().iterator();
 		while(it.hasNext()){
 			String word = it.next();
-			context.write(new Text(word.toLowerCase()), new Text((result.get(word)).toString()));
+			context.write(new Text(word.toLowerCase()), result.get(word));
 		}
 	}
 	

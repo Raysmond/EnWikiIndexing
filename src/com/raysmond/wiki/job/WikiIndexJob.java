@@ -7,9 +7,11 @@ import javax.xml.soap.Text;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 
 import com.raysmond.wiki.mr.XmlInputFormat;
 
@@ -21,6 +23,7 @@ public class WikiIndexJob implements Callable<String> {
 	
 	private RunningJob runningJob;
 	
+	@SuppressWarnings("unchecked")
 	public String call() throws Exception {
 		JobConf job = new JobConf();
 		job.setJarByClass(getClass());
@@ -32,7 +35,7 @@ public class WikiIndexJob implements Callable<String> {
 
 		// Input / Mapper
 		FileInputFormat.setInputPaths(job, new Path(getInputPath()));
-		job.setInputFormat(XmlInputFormat.class);
+		job.setInputFormat((Class<? extends InputFormat>) XmlInputFormat.class);
 
 		if (getOutputPath() != null)
 			FileOutputFormat.setOutputPath(job, new Path(getOutputPath()));
