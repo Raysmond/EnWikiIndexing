@@ -17,6 +17,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import com.raysmond.wiki.util.CounterUtil;
 import com.raysmond.wiki.util.StringUtils;
 import com.raysmond.wiki.writable.WordIndex;
+import com.raysmond.wiki.writable.WordIndexWithoutPosition;
 
 /**
  * IndexMapper class.
@@ -26,10 +27,10 @@ import com.raysmond.wiki.writable.WordIndex;
  * 
  * @author Raysmond, Junshi Guo
  */
-public class IndexMapper extends Mapper<LongWritable,Text,Text,WordIndex> {
+public class IndexWeightingMapper extends Mapper<LongWritable,Text,Text,WordIndexWithoutPosition> {
 	
 	// Word to index map
-	private HashMap<String,WordIndex> result;
+	private HashMap<String,WordIndexWithoutPosition> result;
 
 	/**
 	 * Map method
@@ -43,10 +44,11 @@ public class IndexMapper extends Mapper<LongWritable,Text,Text,WordIndex> {
 		//String plainStr = this.cleanText(content);
 		String text = this.getPlainText(content);
 		
-		System.out.println("id: " + id);
+		CounterUtil.countPage();
+		//System.out.println("start to map page: " + id);
 		
 		int pos = 0;
-		result = new HashMap<String,WordIndex>();
+		result = new HashMap<String,WordIndexWithoutPosition>();
 		
 //		String[] words = text.split("\\s+");
 		String[] words = text.split("[\\s+|[\\p{Punct}]+]+");
@@ -70,13 +72,13 @@ public class IndexMapper extends Mapper<LongWritable,Text,Text,WordIndex> {
 	 * @param position word offset in the page
 	 */
 	public void addWord(String articleId,String word, Integer position){
-		WordIndex output = result.get(word);
+		WordIndexWithoutPosition output = result.get(word);
 		if(output!=null){
 			output.addPosition(position);
 			//result.remove(word);
 		}
 		else{
-			output = new WordIndex(articleId);
+			output = new WordIndexWithoutPosition(articleId);
 			output.addPosition(position);
 			result.put(word, output);
 		}

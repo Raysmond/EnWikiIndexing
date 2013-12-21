@@ -13,16 +13,27 @@ import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+
 import com.raysmond.wiki.mr.IndexMapper;
 import com.raysmond.wiki.mr.IndexReducer;
+import com.raysmond.wiki.mr.IndexWeightingMapper;
+import com.raysmond.wiki.mr.IndexWeightingReducer;
 import com.raysmond.wiki.mr.XmlInputFormat;
-import com.raysmond.wiki.writable.WordIndex;
+import com.raysmond.wiki.util.CounterUtil;
+import com.raysmond.wiki.writable.WordIndexWithoutPosition;
 
-public class WikiIndexJob {
-
+public class WikiIndexWeightingJob {
 	private String inputPath;
-
 	private String outputPath;
+	
+	public static void main(String[] args) throws Exception {
+		WikiIndexWeightingJob job = new WikiIndexWeightingJob();
+
+		if (args.length >= 1)
+			job.setInputPath(args[0]);
+
+		job.call();
+	}
 	
 	public void call() throws Exception {
 		//create table
@@ -44,20 +55,20 @@ public class WikiIndexJob {
 		
 		// Job initialization
 		Job job = new Job(conf, "Wiki Index by HBase");
-		job.setJarByClass(WikiIndexJob.class);
+		job.setJarByClass(WikiIndexWeightingJob.class);
 		
 		//Mapper and Reducer
-		job.setMapperClass(IndexMapper.class);
-		job.setReducerClass(IndexReducer.class);
+		job.setMapperClass(IndexWeightingMapper.class);
+		job.setReducerClass(IndexWeightingReducer.class);
 		
 		//job.setNumReduceTasks(1);
 		
 		// Map output
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(WordIndex.class);
+		job.setMapOutputValueClass(WordIndexWithoutPosition.class);
 		
 		
-		TableMapReduceUtil.initTableReducerJob("wikiIndex", IndexReducer.class, job); 
+		TableMapReduceUtil.initTableReducerJob("wikiIndex", IndexWeightingReducer.class, job); 
 		
 		// Input and output format
 		job.setInputFormatClass(XmlInputFormat.class);
@@ -69,6 +80,11 @@ public class WikiIndexJob {
 		 long startTime = System.currentTimeMillis();
 		job.waitForCompletion(true);
 		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
+		
+		System.out.println("Total pages: "+ CounterUtil.getPageCount());
+		System.out.println("Total words: "+ CounterUtil.getWordCount());
+		System.out.println("Max word occurence pages: "+ CounterUtil.getMaxAppearance());
+		System.out.println("Max word length: "+ CounterUtil.getMaxWordLength());
 	}
 
 	/**
