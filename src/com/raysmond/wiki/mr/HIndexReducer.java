@@ -7,10 +7,7 @@ import java.util.TreeMap;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-
 import com.raysmond.wiki.writable.IndexList;
 import com.raysmond.wiki.writable.WordIndex;
 
@@ -20,45 +17,30 @@ import com.raysmond.wiki.writable.WordIndex;
  * @author Raysmond
  * 
  */
-//public class HIndexReducer extends TableReducer<Text, WordIndex, Text, IndexList> {
-public class HIndexReducer extends TableReducer<Text, IntWritable, NullWritable> {
+public class HIndexReducer extends TableReducer<Text, WordIndex, Text> {
 	private TreeMap<String, WordIndex> map;
 
-	protected void reduce(Text key, Iterator<WordIndex> values,Context context)
+	public void reduce(Text key, Iterable<WordIndex> values, Context context)
 			throws IOException, InterruptedException {
 		map = new TreeMap<String, WordIndex>();
 
-		while (values.hasNext()) {
-			WordIndex index = values.next();
+		Iterator<WordIndex> it = values.iterator();
+		while (it.hasNext()) {
+			WordIndex index = it.next();
 			String aid = index.getArticleId();
 			if (map.get(aid) == null) {
 				// deep copy the object, or the values will all be same
-				map.put(aid, new WordIndex(new String(aid), index.getPositions()));
+				map.put(aid,
+						new WordIndex(new String(aid), index.getPositions()));
 			}
 		}
-		
-		Put put = new Put(Bytes.toBytes(key.toString()));
+
+		System.out.println(key.toString());
+		System.out.println(map.toString());
+
+		Put put = new Put(key.getBytes());
 		put.add(Bytes.toBytes("content"), Bytes.toBytes("index"),
 				Bytes.toBytes((new IndexList(map)).toString()));
-		context.write(NullWritable.get(), put);
+		context.write(new Text(key), put);
 	}
-
-/*	private TreeMap<String, WordIndex> map;
-
-	@Override
-	public void reduce(Text key, Iterator<WordIndex> values,
-			OutputCollector<Text, IndexList> output, Reporter reporter)
-			throws IOException {
-		map = new TreeMap<String, WordIndex>();
-
-		while (values.hasNext()) {
-			WordIndex index = values.next();
-			String aid = index.getArticleId();
-			if (map.get(aid) == null) {
-				// deep copy the object, or the values will all be same
-				map.put(aid, new WordIndex(new String(aid), index.getPositions()));
-			}
-		}
-		output.collect(key, new IndexList(map));
-	}*/
 }

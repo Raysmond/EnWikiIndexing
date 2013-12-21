@@ -44,6 +44,7 @@ public class WordCountHBase {
 	public static class Reduce extends
 			TableReducer<Text, IntWritable, NullWritable> {
 
+		@Override
 		public void reduce(Text key, Iterable<IntWritable> values,
 				Context context) throws IOException, InterruptedException {
 
@@ -53,6 +54,8 @@ public class WordCountHBase {
 			while (iterator.hasNext()) {
 				sum += iterator.next().get();
 			}
+			
+			System.out.println(key.toString());
 
 			// Put 实例化，每个词存一行
 			Put put = new Put(Bytes.toBytes(key.toString()));
@@ -63,6 +66,7 @@ public class WordCountHBase {
 			context.write(NullWritable.get(), put);
 		}
 	}
+	
 
 	// 创建 HBase 数据表
 	public static void createHBaseTable(String tableName) throws IOException {
@@ -75,8 +79,8 @@ public class WordCountHBase {
 		// 配置 HBase
 		Configuration conf = HBaseConfiguration.create();
 
-		conf.set("hbase.zookeeper.quorum", "localhost");
-		conf.set("hbase.zookeeper.property.clientPort", "2222");
+		//conf.set("hbase.zookeeper.quorum", "localhost");
+		//conf.set("hbase.zookeeper.property.clientPort", "2222");
 		HBaseAdmin hAdmin = new HBaseAdmin(conf);
 
 		if (hAdmin.tableExists(tableName)) {
@@ -98,9 +102,9 @@ public class WordCountHBase {
 		// 配置 MapReduce
 		Configuration conf = new Configuration();
 		// 这几句话很关键
-		conf.set("mapred.job.tracker", "localhost:9001");
-		conf.set("hbase.zookeeper.quorum", "localhost");
-		conf.set("hbase.zookeeper.property.clientPort", "2222");
+		//conf.set("mapred.job.tracker", "localhost:9001");
+		//conf.set("hbase.zookeeper.quorum", "localhost");
+		//conf.set("hbase.zookeeper.property.clientPort", "2222");
 		conf.set(TableOutputFormat.OUTPUT_TABLE, tableName);
 
 		Job job = new Job(conf, "New Word Count");

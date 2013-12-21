@@ -2,7 +2,7 @@ package com.raysmond.wiki.job;
 
 public class Main {
 	public static void main(String[] args) throws Exception {
-		WikiIndexJob job = new WikiIndexJob();
+		HWikiIndexJob job = new HWikiIndexJob();
 
 		if (args.length >= 1)
 			job.setInputPath(args[0]);
