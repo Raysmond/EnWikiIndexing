@@ -9,6 +9,14 @@ import java.util.Iterator;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 
+
+/**
+ * WordIndex
+ * An word index contains an article ID and a list of positions where the word appears. 
+ * The word it self is stored outside of WordIndex.
+ * 
+ * @author Raysmond
+ */
 public class WordIndex implements WritableComparable {
 	// The unique id of the page
 	private String articleId;

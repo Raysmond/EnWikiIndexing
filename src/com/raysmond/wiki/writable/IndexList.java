@@ -7,6 +7,13 @@ import java.util.Iterator;
 import java.util.TreeMap;
 import org.apache.hadoop.io.Writable;
 
+/**
+ * IndexList
+ * An index list contains a list of WordIndex instance for one word. 
+ * 
+ * @author Raysmond
+ *
+ */
 public class IndexList implements Writable{
 	
 	// Article id to WikiIndex, TreeMap sorts results by article id automatically
