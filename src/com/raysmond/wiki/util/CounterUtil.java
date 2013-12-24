@@ -1,10 +1,12 @@
 package com.raysmond.wiki.util;
 
 public class CounterUtil {
-	private static long pageCount = 0;
-	private static long wordCount = 0;
-	private static int maxLengthOfWord = 0;
-	private static long maxAppearanceInArticle = 0;
+	public static long pageCount = 0;
+	public static long wordCount = 0;
+	public static int maxLengthOfWord = 0;
+	public static long maxAppearanceInArticle = 0;
+	public static String maxOccurenceWord = "";
+	public static String maxLengthWord = "";
 	
 	public synchronized static void countPage(){
 		CounterUtil.pageCount++;
@@ -18,12 +20,15 @@ public class CounterUtil {
 		int len = word.length();
 		if(len>CounterUtil.maxLengthOfWord){
 			CounterUtil.maxLengthOfWord = len;
+			maxLengthWord = word;
 		}
 	}
 	
-	public synchronized static void updateMaxWordAppearance(long wordAppearance){
-		if(wordAppearance>CounterUtil.maxAppearanceInArticle)
+	public synchronized static void updateMaxWordAppearance(long wordAppearance, String word){
+		if(wordAppearance>CounterUtil.maxAppearanceInArticle){
+			maxOccurenceWord = word;
 			CounterUtil.maxAppearanceInArticle = wordAppearance;
+		}
 	}
 
 	

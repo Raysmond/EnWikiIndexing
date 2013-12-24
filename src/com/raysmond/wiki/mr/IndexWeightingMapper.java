@@ -1,4 +1,5 @@
 package com.raysmond.wiki.mr;
+
 import info.bliki.wiki.filter.PlainTextConverter;
 import info.bliki.wiki.model.WikiModel;
 
@@ -20,71 +21,77 @@ import com.raysmond.wiki.writable.WordIndex;
 import com.raysmond.wiki.writable.WordIndexWithoutPosition;
 
 /**
- * IndexMapper class.
- * The map will receive a page in XML form, and resolve it into words and inverted indexes.
- * The word index in the page contains the current page ID and all positions where it appears
- * in term of word offset.
+ * IndexMapper class. The map will receive a page in XML form, and resolve it
+ * into words and inverted indexes. The word index in the page contains the
+ * current page ID and all positions where it appears in term of word offset.
  * 
  * @author Raysmond, Junshi Guo
  */
-public class IndexWeightingMapper extends Mapper<LongWritable,Text,Text,WordIndexWithoutPosition> {
-	
-	// Word to index map
-	private HashMap<String,WordIndexWithoutPosition> result;
+public class IndexWeightingMapper extends
+		Mapper<LongWritable, Text, Text, WordIndexWithoutPosition> {
 
+	// Word to index map
+	private HashMap<String, WordIndexWithoutPosition> result;
+	
+	public final static int MAX_WORD_LENGTH = 255;
+	
+	private static final Pattern REF = Pattern.compile("<ref>.*?</ref>");
+	private static final Pattern LANG_LINKS = Pattern.compile("\\[\\[[a-z\\-]+:[^\\]]+\\]\\]");
+	private static final Pattern DOUBLE_CURLY = Pattern.compile("\\{\\{.*?\\}\\}");
+	private static final Pattern URL = Pattern.compile("http://[^ <]+"); 
+	private static final Pattern HTML_TAG = Pattern.compile("<[^!][^>]*>");
+	private static final Pattern HTML_COMMENT = Pattern.compile("<!--.*?-->", Pattern.DOTALL);
+	
 	/**
 	 * Map method
-	 * @param value Text a wiki page in XML form
+	 * 
+	 * @param value
+	 *            Text a wiki page in XML form
 	 */
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
-		String id = this.parseXMLTag("id", value);
-		String title = this.parseXMLTag("title", value);
-		String content = title + "\n"+ this.parseXMLText(value);
-		//String plainStr = this.cleanText(content);
-		String text = this.getPlainText(content);
-		
+		String id = parseXMLTag("id", value);
+		String text = getPlainText(parseXMLTag("title", value) + "\n" + parseXMLText(value));
 		CounterUtil.countPage();
-		//System.out.println("start to map page: " + id);
 		
+		result = new HashMap<String, WordIndexWithoutPosition>();
+
 		int pos = 0;
-		result = new HashMap<String,WordIndexWithoutPosition>();
-		
-//		String[] words = text.split("\\s+");
 		String[] words = text.split("[\\s+|[\\p{Punct}]+]+");
-		for(String word: words){
+		for (String word : words) {
 			CounterUtil.updateMaxWordLength(word);
-			this.addWord(id,word,pos++);
+			if (word.length() <= MAX_WORD_LENGTH) 
+				addWord(id, word, pos++);
 		}
-		
+
 		Iterator<String> it = result.keySet().iterator();
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			String word = it.next();
-			//context.write(new Text(word.toLowerCase()), new WordIndex(result.get(word)));
 			context.write(new Text(word.toLowerCase()), result.get(word));
 		}
 	}
-	
+
 	/**
 	 * Add a word in a page and update the indexes.
-	 * @param articleId page ID
-	 * @param word a word in page
-	 * @param position word offset in the page
+	 * 
+	 * @param articleId
+	 *            page ID
+	 * @param word
+	 *            a word in page
+	 * @param position
+	 *            word offset in the page
 	 */
-	public void addWord(String articleId,String word, Integer position){
+	public void addWord(String articleId, String word, Integer position) {
 		WordIndexWithoutPosition output = result.get(word);
-		if(output!=null){
+		if (output != null) {
 			output.addPosition(position);
-			//result.remove(word);
-		}
-		else{
+		} else {
 			output = new WordIndexWithoutPosition(articleId);
 			output.addPosition(position);
 			result.put(word, output);
 		}
-		
 	}
-	
+
 	/**
 	 * Parse article XML
 	 * 
@@ -125,39 +132,23 @@ public class IndexWeightingMapper extends Mapper<LongWritable,Text,Text,WordInde
 			return Text.decode(article.getBytes(), start, end - start);
 		}
 	}
-	
 
-	// Explictly remove <ref>...</ref>, because there are screwy things like this:
-	  // <ref>[http://www.interieur.org/<!-- Bot generated title -->]</ref>
-	  // where "http://www.interieur.org/<!--" gets interpreted as the URL by
-	  // Bliki in conversion to text
-	  private static final Pattern REF = Pattern.compile("<ref>.*?</ref>");
-
-	  private static final Pattern LANG_LINKS = Pattern.compile("\\[\\[[a-z\\-]+:[^\\]]+\\]\\]");
-	  private static final Pattern DOUBLE_CURLY = Pattern.compile("\\{\\{.*?\\}\\}");
-
-	  private static final Pattern URL = Pattern.compile("http://[^ <]+"); // Note, don't capture
-	                                                                       // possible HTML tag
-
-	  private static final Pattern HTML_TAG = Pattern.compile("<[^!][^>]*>"); // Note, don't capture
-	                                                                          // comments
-	  private static final Pattern HTML_COMMENT = Pattern.compile("<!--.*?-->", Pattern.DOTALL);
-	  
 	/**
 	 * Get plain text from XML text
+	 * 
 	 * @param text
 	 * @return
 	 */
 	private String cleanText(String text) {
-//		text = EntityDecoder.entityToHtml(text);
+		// text = EntityDecoder.entityToHtml(text);
 		text = StringUtils.unescapeXML(text);
-		
+
 		text = text.replaceAll("[=]+[A-Za-z+\\s-]+[=]+", " ")
 				.replaceAll("\\{\\{[A-Za-z0-9+\\s-]+\\}\\}", " ")
 				.replaceAll("(?m)<ref>.+</ref>", " ")
 				.replaceAll("(?m)<ref name=\"[A-Za-z0-9\\s-]+\">.+</ref>", " ")
 				.replaceAll("<ref>", " <ref>");
-		
+
 		// Convert to plain text
 		WikiModel wikiModel = new WikiModel("${image}", "${title}");
 
@@ -167,32 +158,35 @@ public class IndexWeightingMapper extends Mapper<LongWritable,Text,Text,WordInde
 
 		return plainStr;
 	}
-	
-	private String getPlainText(String s){
+
+	private String getPlainText(String s) {
 		WikiModel wikiModel = new WikiModel("", "");
 		PlainTextConverter textConverter = new PlainTextConverter();
-	    
-		 // Bliki doesn't seem to properly handle inter-language links, so remove manually.
-	    s = LANG_LINKS.matcher(s).replaceAll(" ");
 
-	    wikiModel.setUp();
-	    s = wikiModel.render(textConverter, s);
-	    wikiModel.tearDown();
+		// Bliki doesn't seem to properly handle inter-language links, so remove
+		// manually.
+		s = LANG_LINKS.matcher(s).replaceAll(" ");
 
-	    // The way the some entities are encoded, we have to unescape twice.
-	    s = StringEscapeUtils.unescapeHtml(StringEscapeUtils.unescapeHtml(s));
+		wikiModel.setUp();
+		s = wikiModel.render(textConverter, s);
+		wikiModel.tearDown();
 
-	    s = REF.matcher(s).replaceAll(" ");
-	    s = HTML_COMMENT.matcher(s).replaceAll(" ");
+		// The way the some entities are encoded, we have to unescape twice.
+		s = StringEscapeUtils.unescapeHtml(StringEscapeUtils.unescapeHtml(s));
 
-	    // Sometimes, URL bumps up against comments e.g., <!-- http://foo.com/-->
-	    // Therefore, we want to remove the comment first; otherwise the URL pattern might eat up
-	    // the comment terminator.
-	    s = URL.matcher(s).replaceAll(" ");
-	    s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
-	    s = HTML_TAG.matcher(s).replaceAll(" ");
-	    
-	    return s;
+		s = REF.matcher(s).replaceAll(" ");
+		s = HTML_COMMENT.matcher(s).replaceAll(" ");
+
+		// Sometimes, URL bumps up against comments e.g., <!--
+		// http://foo.com/-->
+		// Therefore, we want to remove the comment first; otherwise the URL
+		// pattern might eat up
+		// the comment terminator.
+		s = URL.matcher(s).replaceAll(" ");
+		s = DOUBLE_CURLY.matcher(s).replaceAll(" ");
+		s = HTML_TAG.matcher(s).replaceAll(" ");
+
+		return s;
 	}
-	
+
 }

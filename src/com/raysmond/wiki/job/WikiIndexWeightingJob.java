@@ -83,8 +83,10 @@ public class WikiIndexWeightingJob {
 		
 		System.out.println("Total pages: "+ CounterUtil.getPageCount());
 		System.out.println("Total words: "+ CounterUtil.getWordCount());
-		System.out.println("Max word occurence pages: "+ CounterUtil.getMaxAppearance());
+		System.out.println("Max word occurence: "+ CounterUtil.getMaxAppearance());
+		System.out.println(" => "+ CounterUtil.maxOccurenceWord);
 		System.out.println("Max word length: "+ CounterUtil.getMaxWordLength());
+		System.out.println(" => "+ CounterUtil.maxLengthWord);
 	}
 
 	/**
