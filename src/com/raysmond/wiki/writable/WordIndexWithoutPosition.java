@@ -16,7 +16,7 @@ public class WordIndexWithoutPosition implements WritableComparable {
 	private String articleId;
 	private int positionCount = 0;
 	
-	private double weighting = 0;
+	private long weighting = 0;
 	
 	public static long numberOfDocumentsWithTerm = 0;
 
@@ -76,9 +76,8 @@ public class WordIndexWithoutPosition implements WritableComparable {
 	
 	public double getWeighting(){
 		if(numberOfDocumentsWithTerm!=0 && weighting == 0){
-			weighting = positionCount * Math.log((double)(CounterUtil.getPageCount())/(double)(numberOfDocumentsWithTerm));
-			weighting = round(weighting,6,BigDecimal.ROUND_HALF_UP);
-			//System.out.println(positionCount + "|" + CounterUtil.getPageCount() +"|" +numberOfDocumentsWithTerm +"|" + weighting);
+			double weight = positionCount * Math.log((double)(CounterUtil.getPageCount())/(double)(numberOfDocumentsWithTerm));
+			weighting = (long)(weight * 1000000);
 		}
 		return weighting;
 	}

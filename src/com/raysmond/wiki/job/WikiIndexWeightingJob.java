@@ -37,7 +37,7 @@ public class WikiIndexWeightingJob {
 	
 	public void call() throws Exception {
 		//create table
-		String tableName = "wikiIndex";
+		String tableName = "10300240065_31_wikiIndex";
 		WikiIndexJob.createHBaseTable(tableName);
 		
 		//configure mapreduce
@@ -68,7 +68,7 @@ public class WikiIndexWeightingJob {
 		job.setMapOutputValueClass(WordIndexWithoutPosition.class);
 		
 		
-		TableMapReduceUtil.initTableReducerJob("wikiIndex", IndexWeightingReducer.class, job); 
+		TableMapReduceUtil.initTableReducerJob("10300240065_31_wikiIndex", IndexWeightingReducer.class, job); 
 		
 		// Input and output format
 		job.setInputFormatClass(XmlInputFormat.class);
