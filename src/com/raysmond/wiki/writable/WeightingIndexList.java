@@ -1,24 +1,22 @@
 package com.raysmond.wiki.writable;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.util.Iterator;
 
 import org.apache.hadoop.io.Writable;
 
-// TODO be implemented
-public class WeightingIndexList implements Writable{
-
+public class WeightingIndexList<WeightingIndex extends Writable> extends
+		ArrayListWritable<WeightingIndex> {
+	private static final long serialVersionUID = -2838690040583088632L;
+	
 	@Override
-	public void readFields(DataInput arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void write(DataOutput arg0) throws IOException {
-		// TODO Auto-generated method stub
-		
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(this.size()).append(" ");
+		Iterator<WeightingIndex> iter = this.iterator();
+		while (iter.hasNext()) {
+			sb.append(iter.next()).append(" ");
+		}
+		return sb.toString();
 	}
 
 }

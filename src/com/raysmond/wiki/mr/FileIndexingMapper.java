@@ -12,19 +12,24 @@ import com.raysmond.wiki.util.CounterUtil;
 import com.raysmond.wiki.util.WikiPageUtil;
 import com.raysmond.wiki.writable.WeightingIndex;
 
+/**
+ * FileIndexingMapper
+ * 
+ * @author Raysmond
+ * 
+ */
 public class FileIndexingMapper extends
 		Mapper<LongWritable, Text, Text, WeightingIndex> {
+
 	private HashMap<String, WeightingIndex> result;
 
 	public final static int MAX_WORD_LENGTH = 255;
 
-	public void map(LongWritable key, Text value, Context context)
+	public void map(LongWritable key, Text page, Context context)
 			throws IOException, InterruptedException {
-		String id = WikiPageUtil.parseXMLTag("id", value);
+		String id = WikiPageUtil.parseXMLTag("id", page);
 		String text = WikiPageUtil.getPlainText(WikiPageUtil.parseXMLTag(
-				"title", value) + "\n" + WikiPageUtil.parseXMLText(value));
-		
-		CounterUtil.countPage();
+				"title", page) + "\n" + WikiPageUtil.parseXMLText(page));
 		result = new HashMap<String, WeightingIndex>();
 
 		int pos = 0;
@@ -40,6 +45,8 @@ public class FileIndexingMapper extends
 			String word = it.next();
 			context.write(new Text(word.toLowerCase()), result.get(word));
 		}
+
+		CounterUtil.countPage();
 	}
 
 	public void addWord(String articleId, String word, Integer position) {

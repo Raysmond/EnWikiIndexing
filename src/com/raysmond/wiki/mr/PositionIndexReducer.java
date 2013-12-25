@@ -8,7 +8,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
-import com.raysmond.wiki.writable.PositionIndexList;
 import com.raysmond.wiki.writable.PositionIndex;
 
 /**
@@ -38,8 +37,8 @@ public class PositionIndexReducer extends TableReducer<Text, PositionIndex, Text
 		}
 
 	   // System.out.println(key.toString() + ": " +(new IndexList(map)).toString());
-		Put put = new Put(Bytes.toBytes(key.toString()));
-		put.add(Bytes.toBytes("content"), Bytes.toBytes("index"), Bytes.toBytes((new PositionIndexList(map)).toString()));
-		context.write(new Text(key), put);
+		//Put put = new Put(Bytes.toBytes(key.toString()));
+		//put.add(Bytes.toBytes("content"), Bytes.toBytes("index"), Bytes.toBytes((new PositionIndexList(map)).toString()));
+		//context.write(new Text(key), put);
 	}
 }

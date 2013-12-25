@@ -24,20 +24,15 @@ public class PositionIndexMapper extends Mapper<LongWritable,Text,Text,PositionI
 	// Word to index map
 	private HashMap<String,PositionIndex> result;
 
-	/**
-	 * Map method
-	 * @param value Text a wiki page in XML form
-	 */
-	public void map(LongWritable key, Text value, Context context)
+	public void map(LongWritable key, Text page, Context context)
 			throws IOException, InterruptedException {
-		String id = WikiPageUtil.parseXMLTag("id", value);
+		String id = WikiPageUtil.parseXMLTag("id", page);
 		String text = WikiPageUtil.getPlainText(WikiPageUtil.parseXMLTag(
-				"title", value) + "\n" + WikiPageUtil.parseXMLText(value));
+				"title", page) + "\n" + WikiPageUtil.parseXMLText(page));
 		
 		int pos = 0;
 		result = new HashMap<String,PositionIndex>();
 		
-//		String[] words = text.split("\\s+");
 		String[] words = text.split("[\\s+|[\\p{Punct}]+]+");
 		for(String word: words){
 			CounterUtil.updateMaxWordLength(word);
@@ -52,17 +47,10 @@ public class PositionIndexMapper extends Mapper<LongWritable,Text,Text,PositionI
 		}
 	}
 	
-	/**
-	 * Add a word in a page and update the indexes.
-	 * @param articleId page ID
-	 * @param word a word in page
-	 * @param position word offset in the page
-	 */
 	public void addWord(String articleId,String word, Integer position){
 		PositionIndex output = result.get(word);
 		if(output!=null){
 			output.addPosition(position);
-			//result.remove(word);
 		}
 		else{
 			output = new PositionIndex(articleId);

@@ -3,8 +3,6 @@ package com.raysmond.wiki.writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
@@ -48,7 +46,7 @@ public class WeightingIndex implements WritableComparable<WeightingIndex> {
 
 	@Override
 	public String toString() {
-		return this.articleId + " " + this.positionCount;
+		return this.articleId;
 	}
 
 	
@@ -57,6 +55,10 @@ public class WeightingIndex implements WritableComparable<WeightingIndex> {
 		 return true;
 	}
 
+	public void setArticleId(String id){
+		this.articleId = id;
+	}
+	
 	public String getArticleId() {
 		return this.articleId;
 	}
