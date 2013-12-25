@@ -30,6 +30,9 @@ public class PositionIndexJob extends IndexJob {
 		PositionIndexJob job = new PositionIndexJob();
 		job.setInputPath(args[0]);
 		job.setOutputPath(args[1]);
+		if(args.length>=3){
+			job.setReducerNum(Integer.parseInt(args[2]));
+		}
 		job.call();
 	}
 
@@ -41,8 +44,6 @@ public class PositionIndexJob extends IndexJob {
 
 		job.setMapperClass(PositionIndexMapper.class);
 		job.setReducerClass(PositionIndexReducer.class);
-
-		// job.setNumReduceTasks(1);
 
 		// Map output
 		job.setMapOutputKeyClass(Text.class);

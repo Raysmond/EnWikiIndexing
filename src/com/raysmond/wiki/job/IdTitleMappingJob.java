@@ -20,6 +20,7 @@ public class IdTitleMappingJob extends IndexJob {
 		IdTitleMappingJob job = new IdTitleMappingJob();
 		job.setInputPath(args[0]);
 		job.setOutputPath(args[1]);
+		job.setReducerNum(0);
 		job.call();
 	}
 
@@ -31,8 +32,6 @@ public class IdTitleMappingJob extends IndexJob {
 
 		job.setMapperClass(IdTitleMapper.class);
 		//job.setReducerClass(IdTitleReducer.class);
-
-		job.setNumReduceTasks(0);
 
 		// Map output
 		job.setMapOutputKeyClass(Text.class);

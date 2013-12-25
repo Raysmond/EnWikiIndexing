@@ -13,13 +13,21 @@ import com.raysmond.wiki.util.CounterUtil;
 abstract class IndexJob {
 	private String inputPath;
 	private String outputPath;
+	private int reducerNum = 1;
 	
+	public void setReducerNum(int num){
+		this.reducerNum = num;
+	}
+	public int getReducerNum(){
+		return this.reducerNum;
+	}
 	public abstract Job initialize(Configuration conf) throws IOException;
 	
 	public void call() throws Exception {
 		Configuration conf = new Configuration();
 		
 		Job job = initialize(conf);
+		job.setNumReduceTasks(this.getReducerNum());
 		
 		// Input and output path
 		FileInputFormat.addInputPath(job, new Path(getInputPath()));

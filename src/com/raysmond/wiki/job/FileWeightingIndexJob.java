@@ -32,9 +32,12 @@ public class FileWeightingIndexJob extends IndexJob {
 		FileWeightingIndexJob job = new FileWeightingIndexJob();
 		job.setInputPath(args[0]);
 		job.setOutputPath(args[1]);
+		if(args.length>=3){
+			job.setReducerNum(Integer.parseInt(args[2]));
+		}
 		job.call();
 	}
-
+	
 	@Override
 	public Job initialize(Configuration conf) throws IOException {
 		// zookeeper
@@ -52,8 +55,6 @@ public class FileWeightingIndexJob extends IndexJob {
 
 		job.setMapperClass(FileIndexingMapper.class);
 		job.setReducerClass(FileIndexingReducer.class);
-
-		// job.setNumReduceTasks(1);
 
 		// Map output
 		job.setMapOutputKeyClass(Text.class);

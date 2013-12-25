@@ -53,7 +53,7 @@ public class PositionIndex implements WritableComparable<PositionIndex> {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 		str.append(articleId).append(" ");
-		// str.append(positionCount).append(" ");
+		str.append(positions.size()).append(" ");
 		for (IntWritable val : positions) {
 			str.append(val).append(" ");
 		}
