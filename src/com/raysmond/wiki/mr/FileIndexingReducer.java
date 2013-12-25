@@ -10,8 +10,8 @@ import org.apache.hadoop.io.Text;
 
 import com.raysmond.wiki.util.CounterUtil;
 import com.raysmond.wiki.writable.ArrayListWritable;
+import com.raysmond.wiki.writable.IndexList;
 import com.raysmond.wiki.writable.WeightingIndex;
-import com.raysmond.wiki.writable.WeightingIndexList;
 
 /**
  * FileIndexingReducer
@@ -26,7 +26,7 @@ public class FileIndexingReducer extends
 	@Override
 	public void reduce(Text key, Iterable<WeightingIndex> values,
 			Context context) throws IOException, InterruptedException {
-		WeightingIndexList<WeightingIndex> list = new WeightingIndexList<WeightingIndex>();
+		IndexList<WeightingIndex> list = new IndexList<WeightingIndex>();
 		Iterator<WeightingIndex> iter = values.iterator();
 		while (iter.hasNext()) {
 			WeightingIndex index = new WeightingIndex(iter.next());
@@ -52,6 +52,6 @@ public class FileIndexingReducer extends
 		context.write(key, list);
 
 		CounterUtil.countWord();
-		CounterUtil.updateMaxWordAppearance(list.size(), key.toString());
+		CounterUtil.UpdateMaxWordOccurence(list.size(), key.toString());
 	}
 }

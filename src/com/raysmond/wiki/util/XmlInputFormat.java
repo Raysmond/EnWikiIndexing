@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.raysmond.wiki.mr;
+package com.raysmond.wiki.util;
 
 import java.io.IOException;
 

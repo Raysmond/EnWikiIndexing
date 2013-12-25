@@ -31,7 +31,6 @@ public class WeightingIndexMapper extends
 			throws IOException, InterruptedException {
 		String id = WikiPageUtil.parseXMLTag("id", value);
 		String text = WikiPageUtil.getPlainText(WikiPageUtil.parseXMLTag( "title", value) + "\n" + WikiPageUtil.parseXMLText(value));
-		CounterUtil.countPage();
 		
 		result = new HashMap<String, WeightingIndex>();
 
@@ -48,6 +47,8 @@ public class WeightingIndexMapper extends
 			String word = it.next();
 			context.write(new Text(word.toLowerCase()), result.get(word));
 		}
+		
+		CounterUtil.countPage();
 	}
 
 	/**

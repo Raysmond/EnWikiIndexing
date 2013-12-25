@@ -42,9 +42,10 @@ public class PositionIndexMapper extends Mapper<LongWritable,Text,Text,PositionI
 		Iterator<String> it = result.keySet().iterator();
 		while(it.hasNext()){
 			String word = it.next();
-			//context.write(new Text(word.toLowerCase()), new WordIndex(result.get(word)));
 			context.write(new Text(word.toLowerCase()), result.get(word));
 		}
+
+		CounterUtil.countPage();
 	}
 	
 	public void addWord(String articleId,String word, Integer position){
@@ -57,7 +58,5 @@ public class PositionIndexMapper extends Mapper<LongWritable,Text,Text,PositionI
 			output.addPosition(position);
 			result.put(word, output);
 		}
-		
 	}
-	
 }

@@ -18,8 +18,8 @@ import com.raysmond.wiki.mr.PositionIndexMapper;
 import com.raysmond.wiki.mr.PositionIndexReducer;
 import com.raysmond.wiki.mr.WeightingIndexMapper;
 import com.raysmond.wiki.mr.WeightingIndexReducer;
-import com.raysmond.wiki.mr.XmlInputFormat;
 import com.raysmond.wiki.util.CounterUtil;
+import com.raysmond.wiki.util.XmlInputFormat;
 import com.raysmond.wiki.writable.WeightingIndex;
 
 /**
@@ -30,14 +30,15 @@ import com.raysmond.wiki.writable.WeightingIndex;
  * @author Raysmond, Junshi Guo
  *
  */
-public class WeightingIndexJob extends IndexJob {
+public class HBaseWeightingIndexJob extends IndexJob {
 
 	public static void main(String[] args) throws Exception {
-		WeightingIndexJob job = new WeightingIndexJob();
-
-		if (args.length >= 1)
-			job.setInputPath(args[0]);
-
+		if (args.length < 1) {
+			System.err.println("Input path must be set!");
+			System.exit(1); 
+		}
+		HBaseWeightingIndexJob job = new HBaseWeightingIndexJob();
+		job.setInputPath(args[0]);
 		job.call();
 	}
 
@@ -72,7 +73,7 @@ public class WeightingIndexJob extends IndexJob {
 	public Job initialize(Configuration conf) throws IOException {
 		// create table
 		String tableName = "10300240065_31_wikiIndex";
-		PositionIndexJob.createHBaseTable(tableName);
+		createHBaseTable(tableName);
 
 		// zookeeper
 		// conf.set("mapred.job.tracker", "localhost:9001");
@@ -86,7 +87,7 @@ public class WeightingIndexJob extends IndexJob {
 
 		// Job initialization
 		Job job = new Job(conf, "Wiki Index by HBase");
-		job.setJarByClass(WeightingIndexJob.class);
+		job.setJarByClass(HBaseWeightingIndexJob.class);
 
 		// Mapper and Reducer
 		job.setMapperClass(WeightingIndexMapper.class);
@@ -106,4 +107,5 @@ public class WeightingIndexJob extends IndexJob {
 		job.setOutputFormatClass(TableOutputFormat.class);
 		return job;
 	}
+	
 }

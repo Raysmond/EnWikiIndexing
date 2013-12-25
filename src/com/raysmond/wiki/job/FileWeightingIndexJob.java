@@ -10,9 +10,9 @@ import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 
 import com.raysmond.wiki.mr.FileIndexingMapper;
 import com.raysmond.wiki.mr.FileIndexingReducer;
-import com.raysmond.wiki.mr.XmlInputFormat;
+import com.raysmond.wiki.util.XmlInputFormat;
+import com.raysmond.wiki.writable.IndexList;
 import com.raysmond.wiki.writable.WeightingIndex;
-import com.raysmond.wiki.writable.WeightingIndexList;
 
 /**
  * FileIndexJob
@@ -22,14 +22,14 @@ import com.raysmond.wiki.writable.WeightingIndexList;
  * @author Raysmond
  *
  */
-public class FileIndexJob extends IndexJob {
+public class FileWeightingIndexJob extends IndexJob {
 
 	public static void main(String[] args) throws Exception {
 		if (args.length < 2) {
 			System.err.println("Both input and output path must be set!");
 			System.exit(1); 
 		}
-		FileIndexJob job = new FileIndexJob();
+		FileWeightingIndexJob job = new FileWeightingIndexJob();
 		job.setInputPath(args[0]);
 		job.setOutputPath(args[1]);
 		job.call();
@@ -48,7 +48,7 @@ public class FileIndexJob extends IndexJob {
 
 		// Job initialization
 		Job job = new Job(conf, "File indexing job");
-		job.setJarByClass(FileIndexJob.class);
+		job.setJarByClass(FileWeightingIndexJob.class);
 
 		job.setMapperClass(FileIndexingMapper.class);
 		job.setReducerClass(FileIndexingReducer.class);
@@ -64,7 +64,7 @@ public class FileIndexJob extends IndexJob {
 		job.setInputFormatClass(XmlInputFormat.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
-		job.setOutputValueClass(WeightingIndexList.class);
+		job.setOutputValueClass(IndexList.class);
 
 		return job;
 	}

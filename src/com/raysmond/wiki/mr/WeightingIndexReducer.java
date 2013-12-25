@@ -24,7 +24,7 @@ public class WeightingIndexReducer extends
 			list.add(new WeightingIndex(index));
 		}
 		CounterUtil.countWord();
-		CounterUtil.updateMaxWordAppearance(list.size(), key.toString());
+		CounterUtil.UpdateMaxWordOccurence(list.size(), key.toString());
 		WeightingIndex.numberOfDocumentsWithTerm = list.size();
 		
 		// Sort posting list by term weighting

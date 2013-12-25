@@ -4,7 +4,7 @@ public class CounterUtil {
 	public static long pageCount = 0;
 	public static long wordCount = 0;
 	public static int maxLengthOfWord = 0;
-	public static long maxAppearanceInArticle = 0;
+	public static long maxOccurence = 0;
 	public static String maxOccurenceWord = "";
 	public static String maxLengthWord = "";
 	
@@ -24,10 +24,10 @@ public class CounterUtil {
 		}
 	}
 	
-	public synchronized static void updateMaxWordAppearance(long wordAppearance, String word){
-		if(wordAppearance>CounterUtil.maxAppearanceInArticle){
+	public synchronized static void UpdateMaxWordOccurence(long maxOccurence, String word){
+		if(maxOccurence>CounterUtil.maxOccurence){
 			maxOccurenceWord = word;
-			CounterUtil.maxAppearanceInArticle = wordAppearance;
+			CounterUtil.maxOccurence = maxOccurence;
 		}
 	}
 
@@ -44,7 +44,7 @@ public class CounterUtil {
 		return CounterUtil.maxLengthOfWord;
 	}
 	
-	public static long getMaxAppearance(){
-		return CounterUtil.maxAppearanceInArticle;
+	public static long getMaxOccurence(){
+		return CounterUtil.maxOccurence;
 	}
 }
