@@ -25,6 +25,11 @@ abstract class IndexJob {
 	
 	public void call() throws Exception {
 		Configuration conf = new Configuration();
+		conf.setLong("page_count", 0);
+//		conf.setLong("total_words", 0);
+//		conf.setInt("max_word_length", 0);
+//		conf.setInt("max_word_occurence", 0);
+//		conf.setInt("max_word_occurence_count", 0);
 		
 		Job job = initialize(conf);
 		job.setNumReduceTasks(this.getReducerNum());
@@ -36,18 +41,15 @@ abstract class IndexJob {
 		
 		long startTime = System.currentTimeMillis();
 		job.waitForCompletion(true);
-		
 		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
-		showCounting();
+		showCounting(job.getConfiguration());
 	}
 	
-	public void showCounting(){
-		System.out.println("Total pages: "+ CounterUtil.getPageCount());
-		System.out.println("Total words: "+ CounterUtil.getWordCount());
-		System.out.println("Max word occurence: "+ CounterUtil.getMaxOccurence());
-		System.out.println(" => "+ CounterUtil.maxOccurenceWord);
-		System.out.println("Max word length: "+ CounterUtil.getMaxWordLength());
-		System.out.println(" => "+ CounterUtil.maxLengthWord);
+	public void showCounting(Configuration conf){
+//		System.out.println("Total pages: "+ conf.getLong("page_count", 0));
+//		System.out.println("Total words: "+ conf.getLong("total_words",0));
+//		System.out.println("Max word occurence: "+ conf.getInt("max_word_occurence_count", 0) + "=>" + conf.getStrings("max_word_occurence"));
+//		System.out.println("Max word length: "+ conf.getInt("max_word_length", 0));
 	}
 
 	public void setInputPath(String inputPath) {

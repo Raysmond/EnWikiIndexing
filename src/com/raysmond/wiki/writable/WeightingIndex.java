@@ -4,6 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -17,42 +18,43 @@ import com.raysmond.wiki.util.CounterUtil;
  */
 public class WeightingIndex implements WritableComparable<WeightingIndex> {
 	// The unique id of the page
-	private String articleId;
+	private Long articleId;
 	private int positionCount = 0;
 	private long weighting = 0;
 	
 	// the word occurs in how many pages
 	public static long numberOfDocumentsWithTerm = 0;
+	public static long pageCount = 0;
 
 	public WeightingIndex() {
 
 	}
 	
 	public WeightingIndex(WeightingIndex index){
-		this.articleId = new String(index.articleId);
+		this.articleId = index.articleId;
 		this.positionCount = index.positionCount;
 	}
 
-	public WeightingIndex(String articleId) {
+	public WeightingIndex(long articleId) {
 		this.articleId = articleId;
 		positionCount = 0;
 	}
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
-		articleId = Text.readString(in);
+		articleId = in.readLong();
 		positionCount = in.readInt();
 	}
 
 	@Override
 	public void write(DataOutput out) throws IOException {
-		Text.writeString(out, articleId);
+		out.writeLong(articleId);
 		out.writeInt(positionCount);
 	}
 
 	@Override
 	public String toString() {
-		return this.articleId;
+		return String.valueOf(articleId);
 	}
 
 	
@@ -61,12 +63,12 @@ public class WeightingIndex implements WritableComparable<WeightingIndex> {
 		 return true;
 	}
 
-	public void setArticleId(String id){
+	public void setArticleId(long id){
 		this.articleId = id;
 	}
 	
-	public String getArticleId() {
-		return this.articleId;
+	public long getArticleId() {
+		return articleId;
 	}
 	
 	public int getPositionCount(){
@@ -74,8 +76,8 @@ public class WeightingIndex implements WritableComparable<WeightingIndex> {
 	}
 	
 	public double getWeighting(){
-		if(numberOfDocumentsWithTerm!=0 && weighting == 0){
-			double weight = positionCount * Math.log((double)(CounterUtil.getPageCount())/(double)(numberOfDocumentsWithTerm));
+		if(numberOfDocumentsWithTerm!=0 && pageCount!=0 && weighting == 0){
+			double weight = positionCount * Math.log((double)(pageCount)/(double)(numberOfDocumentsWithTerm));
 			weighting = (long)(weight * 1000000);
 		}
 		return weighting;
@@ -83,11 +85,9 @@ public class WeightingIndex implements WritableComparable<WeightingIndex> {
 
 	@Override
 	public int compareTo(WeightingIndex o) {
-		double w = getWeighting() - o.getWeighting();
-		if(w>0)
-			return -1;
-		else if(w<0)
-			return 1;
-		else return 0;
+		long v =  this.articleId - o.articleId;
+		if(v>0) return 1;
+		if(v<0) return -1;
+		return 0;
 	}
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -25,7 +26,7 @@ public class FileIndexingMapper extends
 
 	public void map(LongWritable key, Text page, Context context)
 			throws IOException, InterruptedException {
-		String id = WikiPageUtil.parseXMLTag("id", page);
+		long id = Long.parseLong(WikiPageUtil.parseXMLTag("id", page));
 		String text = WikiPageUtil.getPlainText(WikiPageUtil.parseXMLTag(
 				"title", page) + "\n" + WikiPageUtil.parseXMLText(page));
 		result = new HashMap<String, WeightingIndex>();
@@ -33,7 +34,6 @@ public class FileIndexingMapper extends
 		int pos = 0;
 		String[] words = text.split("[\\s+|[\\p{Punct}]+]+");
 		for (String word : words) {
-			CounterUtil.updateMaxWordLength(word);
 			if (word.length() <= WikiPageUtil.MAX_WORD_LENGTH)
 				addWord(id, word, pos++);
 		}
@@ -44,10 +44,11 @@ public class FileIndexingMapper extends
 			context.write(new Text(word.toLowerCase()), result.get(word));
 		}
 
-		CounterUtil.countPage();
+//		Configuration conf = context.getConfiguration();
+//		conf.setLong("page_count",conf.getLong("page_count", 0) + 1);
 	}
 
-	public void addWord(String articleId, String word, Integer position) {
+	public void addWord(long articleId, String word, Integer position) {
 		WeightingIndex output = result.get(word);
 		if (output != null) {
 			output.addPosition(position);

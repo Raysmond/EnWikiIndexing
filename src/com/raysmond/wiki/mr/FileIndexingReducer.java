@@ -33,20 +33,20 @@ public class FileIndexingReducer extends
 			list.add(index);
 		}
 
-		WeightingIndex.numberOfDocumentsWithTerm = list.size();
+//		WeightingIndex.pageCount = context.getConfiguration().getLong("page_count", 0);
+//		WeightingIndex.numberOfDocumentsWithTerm = list.size();
 
 		// Sort posting list by term weighting
 		Collections.sort(list);
 
 		// Compress article ids
-		Long lastId = 0L;
+		long lastId = 0L;
 		Iterator<WeightingIndex> it = list.iterator();
 		while (it.hasNext()) {
 			WeightingIndex index = it.next();
-			Long _id = Long.parseLong(index.getArticleId());
-			String id = String.valueOf(_id - lastId);
+			long _id = index.getArticleId();
+			index.setArticleId(_id - lastId);
 			lastId = _id;
-			index.setArticleId(id);
 		}
 
 		context.write(key, list);

@@ -34,7 +34,7 @@ public class WeightingIndexReducer extends
 		str.append(list.size()).append(" ");
 
 		Iterator<WeightingIndex> it = list.iterator();
-		Long lastId = Long.parseLong(it.next().getArticleId());
+		long lastId = it.next().getArticleId();
 		str.append(lastId);
 
 		Put put = new Put(Bytes.toBytes(key.toString()));
@@ -42,8 +42,7 @@ public class WeightingIndexReducer extends
 		int count = 0;
 		while (it.hasNext()) {
 			WeightingIndex index = it.next();
-			str.append(" ").append(
-					Long.parseLong(index.getArticleId()) - lastId);
+			str.append(" ").append(index.getArticleId()- lastId);
 
 			if (str.length() >= 5000) {
 				put.add(Bytes.toBytes("content"),
@@ -52,7 +51,7 @@ public class WeightingIndexReducer extends
 				str = new StringBuilder();
 				lastId = 0L;
 			} else
-				lastId = Long.parseLong(index.getArticleId());
+				lastId = index.getArticleId();
 		}
 
 		if (str.length() > 0)

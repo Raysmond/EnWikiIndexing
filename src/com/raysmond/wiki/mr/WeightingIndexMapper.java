@@ -29,7 +29,7 @@ public class WeightingIndexMapper extends
 
 	public void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
-		String id = WikiPageUtil.parseXMLTag("id", value);
+		long id = Long.parseLong(WikiPageUtil.parseXMLTag("id", value));
 		String text = WikiPageUtil.getPlainText(WikiPageUtil.parseXMLTag( "title", value) + "\n" + WikiPageUtil.parseXMLText(value));
 		
 		result = new HashMap<String, WeightingIndex>();
@@ -61,7 +61,7 @@ public class WeightingIndexMapper extends
 	 * @param position
 	 *            word offset in the page
 	 */
-	public void addWord(String articleId, String word, Integer position) {
+	public void addWord(long articleId, String word, Integer position) {
 		WeightingIndex output = result.get(word);
 		if (output != null) {
 			output.addPosition(position);
