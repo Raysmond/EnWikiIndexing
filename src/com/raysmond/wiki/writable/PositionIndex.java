@@ -20,7 +20,7 @@ import org.apache.hadoop.io.WritableComparable;
  * 
  * @author Raysmond
  */
-public class WordIndex implements WritableComparable {
+public class PositionIndex implements WritableComparable {
 	// The unique id of the page
 	private String articleId;
 
@@ -30,11 +30,11 @@ public class WordIndex implements WritableComparable {
 	
 	private int positionCount = 0;
 
-	public WordIndex() {
+	public PositionIndex() {
 
 	}
 	
-	public WordIndex(WordIndex index){
+	public PositionIndex(PositionIndex index){
 		this.articleId = new String(index.articleId);
 		this.positionCount = index.positionCount;
 		for(Integer val: index.getPositions()){
@@ -42,7 +42,7 @@ public class WordIndex implements WritableComparable {
 		}
 	}
 
-	public WordIndex(String articleId) {
+	public PositionIndex(String articleId) {
 		this.articleId = articleId;
 		positionCount = 0;
 	}
@@ -96,6 +96,6 @@ public class WordIndex implements WritableComparable {
 
 	@Override
 	public int compareTo(Object o) {
-		return this.articleId.compareTo(((WordIndex)o).articleId);
+		return this.articleId.compareTo(((PositionIndex)o).articleId);
 	}
 }

@@ -11,7 +11,7 @@ import org.apache.hadoop.io.WritableComparable;
 
 import com.raysmond.wiki.util.CounterUtil;
 
-public class WordIndexWithoutPosition implements WritableComparable {
+public class WeightingIndex implements WritableComparable<WeightingIndex> {
 	// The unique id of the page
 	private String articleId;
 	private int positionCount = 0;
@@ -20,16 +20,16 @@ public class WordIndexWithoutPosition implements WritableComparable {
 	
 	public static long numberOfDocumentsWithTerm = 0;
 
-	public WordIndexWithoutPosition() {
+	public WeightingIndex() {
 
 	}
 	
-	public WordIndexWithoutPosition(WordIndexWithoutPosition index){
+	public WeightingIndex(WeightingIndex index){
 		this.articleId = new String(index.articleId);
 		this.positionCount = index.positionCount;
 	}
 
-	public WordIndexWithoutPosition(String articleId) {
+	public WeightingIndex(String articleId) {
 		this.articleId = articleId;
 		positionCount = 0;
 	}
@@ -65,15 +65,6 @@ public class WordIndexWithoutPosition implements WritableComparable {
 		return this.positionCount;
 	}
 	
-	public static double round(double value, int scale, 
-            int roundingMode) {   
-       BigDecimal bd = new BigDecimal(value);   
-       bd = bd.setScale(scale, roundingMode);   
-       double d = bd.doubleValue();   
-       bd = null;   
-       return d;   
-    }   
-	
 	public double getWeighting(){
 		if(numberOfDocumentsWithTerm!=0 && weighting == 0){
 			double weight = positionCount * Math.log((double)(CounterUtil.getPageCount())/(double)(numberOfDocumentsWithTerm));
@@ -83,8 +74,8 @@ public class WordIndexWithoutPosition implements WritableComparable {
 	}
 
 	@Override
-	public int compareTo(Object o) {
-		double w = getWeighting() - (((WordIndexWithoutPosition)o).getWeighting());
+	public int compareTo(WeightingIndex o) {
+		double w = getWeighting() - o.getWeighting();
 		if(w>0)
 			return -1;
 		else if(w<0)

@@ -8,8 +8,8 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
-import com.raysmond.wiki.writable.IndexList;
-import com.raysmond.wiki.writable.WordIndex;
+import com.raysmond.wiki.writable.PositionIndexList;
+import com.raysmond.wiki.writable.PositionIndex;
 
 /**
  * IndexReducer class
@@ -19,27 +19,27 @@ import com.raysmond.wiki.writable.WordIndex;
  * @author Raysmond, Junshi Guo
  * 
  */
-public class IndexReducer extends TableReducer<Text, WordIndex, Text> {
-	private TreeMap<String, WordIndex> map;
+public class PositionIndexReducer extends TableReducer<Text, PositionIndex, Text> {
+	private TreeMap<String, PositionIndex> map;
 
 	@Override
-	public void reduce(Text key, Iterable<WordIndex> values, Context context)
+	public void reduce(Text key, Iterable<PositionIndex> values, Context context)
 			throws IOException, InterruptedException {
-		map = new TreeMap<String, WordIndex>();
+		map = new TreeMap<String, PositionIndex>();
 
-		Iterator<WordIndex> it = values.iterator();
+		Iterator<PositionIndex> it = values.iterator();
 		while (it.hasNext()) {
-			WordIndex index = it.next();
+			PositionIndex index = it.next();
 			String aid = index.getArticleId();
 			if (map.get(aid) == null) {
 				// deep copy the object, or the values will all be same
-				map.put(aid, new WordIndex(index));
+				map.put(aid, new PositionIndex(index));
 			}
 		}
 
 	   // System.out.println(key.toString() + ": " +(new IndexList(map)).toString());
 		Put put = new Put(Bytes.toBytes(key.toString()));
-		put.add(Bytes.toBytes("content"), Bytes.toBytes("index"), Bytes.toBytes((new IndexList(map)).toString()));
+		put.add(Bytes.toBytes("content"), Bytes.toBytes("index"), Bytes.toBytes((new PositionIndexList(map)).toString()));
 		context.write(new Text(key), put);
 	}
 }

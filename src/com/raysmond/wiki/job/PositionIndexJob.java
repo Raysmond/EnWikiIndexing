@@ -13,12 +13,12 @@ import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import com.raysmond.wiki.mr.IndexMapper;
-import com.raysmond.wiki.mr.IndexReducer;
+import com.raysmond.wiki.mr.PositionIndexMapper;
+import com.raysmond.wiki.mr.PositionIndexReducer;
 import com.raysmond.wiki.mr.XmlInputFormat;
-import com.raysmond.wiki.writable.WordIndex;
+import com.raysmond.wiki.writable.PositionIndex;
 
-public class WikiIndexJob {
+public class PositionIndexJob {
 
 	private String inputPath;
 
@@ -39,7 +39,7 @@ public class WikiIndexJob {
 	public void call() throws Exception {
 		//create table
 		String tableName = "wikiIndex";
-		WikiIndexJob.createHBaseTable(tableName);
+		PositionIndexJob.createHBaseTable(tableName);
 		
 		//configure mapreduce
 		Configuration conf = new Configuration();
@@ -56,20 +56,20 @@ public class WikiIndexJob {
 		
 		// Job initialization
 		Job job = new Job(conf, "Wiki Index by HBase");
-		job.setJarByClass(WikiIndexJob.class);
+		job.setJarByClass(PositionIndexJob.class);
 		
 		//Mapper and Reducer
-		job.setMapperClass(IndexMapper.class);
-		job.setReducerClass(IndexReducer.class);
+		job.setMapperClass(PositionIndexMapper.class);
+		job.setReducerClass(PositionIndexReducer.class);
 		
 		//job.setNumReduceTasks(1);
 		
 		// Map output
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(WordIndex.class);
+		job.setMapOutputValueClass(PositionIndex.class);
 		
 		
-		TableMapReduceUtil.initTableReducerJob("wikiIndex", IndexReducer.class, job); 
+		TableMapReduceUtil.initTableReducerJob("wikiIndex", PositionIndexReducer.class, job); 
 		
 		// Input and output format
 		job.setInputFormatClass(XmlInputFormat.class);

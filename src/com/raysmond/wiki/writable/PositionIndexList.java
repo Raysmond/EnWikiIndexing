@@ -14,16 +14,16 @@ import org.apache.hadoop.io.Writable;
  * @author Raysmond
  *
  */
-public class IndexList implements Writable{
+public class PositionIndexList implements Writable{
 	
 	// Article id to WikiIndex, TreeMap sorts results by article id automatically
-	private TreeMap<String,WordIndex> map = new TreeMap<String,WordIndex>();
+	private TreeMap<String,PositionIndex> map = new TreeMap<String,PositionIndex>();
 	
-	public IndexList(){
+	public PositionIndexList(){
 		
 	}
 	
-	public IndexList(TreeMap<String,WordIndex> map){
+	public PositionIndexList(TreeMap<String,PositionIndex> map){
 		this.map = map;
 	}
 	
@@ -31,7 +31,7 @@ public class IndexList implements Writable{
 	public void readFields(DataInput in) throws IOException {
 		Iterator<String> keys = map.keySet().iterator();
 		while(keys.hasNext()){
-		     WordIndex output = new WordIndex();
+		     PositionIndex output = new PositionIndex();
 		     output.readFields(in);
 		     map.put(output.getArticleId(), output);
 		}
@@ -41,7 +41,7 @@ public class IndexList implements Writable{
 	public void write(DataOutput out) throws IOException {
 		Iterator<String> keys = map.keySet().iterator();
 		while(keys.hasNext()){
-		     WordIndex output = map.get(keys.next());
+		     PositionIndex output = map.get(keys.next());
 		     output.write(out);
 		}
 	}

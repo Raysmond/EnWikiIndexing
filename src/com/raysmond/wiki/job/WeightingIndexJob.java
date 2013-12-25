@@ -14,20 +14,20 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 
-import com.raysmond.wiki.mr.IndexMapper;
-import com.raysmond.wiki.mr.IndexReducer;
-import com.raysmond.wiki.mr.IndexWeightingMapper;
-import com.raysmond.wiki.mr.IndexWeightingReducer;
+import com.raysmond.wiki.mr.PositionIndexMapper;
+import com.raysmond.wiki.mr.PositionIndexReducer;
+import com.raysmond.wiki.mr.WeightingIndexMapper;
+import com.raysmond.wiki.mr.WeightingIndexReducer;
 import com.raysmond.wiki.mr.XmlInputFormat;
 import com.raysmond.wiki.util.CounterUtil;
-import com.raysmond.wiki.writable.WordIndexWithoutPosition;
+import com.raysmond.wiki.writable.WeightingIndex;
 
-public class WikiIndexWeightingJob {
+public class WeightingIndexJob {
 	private String inputPath;
 	private String outputPath;
 	
 	public static void main(String[] args) throws Exception {
-		WikiIndexWeightingJob job = new WikiIndexWeightingJob();
+		WeightingIndexJob job = new WeightingIndexJob();
 
 		if (args.length >= 1)
 			job.setInputPath(args[0]);
@@ -38,7 +38,7 @@ public class WikiIndexWeightingJob {
 	public void call() throws Exception {
 		//create table
 		String tableName = "10300240065_31_wikiIndex";
-		WikiIndexJob.createHBaseTable(tableName);
+		PositionIndexJob.createHBaseTable(tableName);
 		
 		//configure mapreduce
 		Configuration conf = new Configuration();
@@ -55,20 +55,20 @@ public class WikiIndexWeightingJob {
 		
 		// Job initialization
 		Job job = new Job(conf, "Wiki Index by HBase");
-		job.setJarByClass(WikiIndexWeightingJob.class);
+		job.setJarByClass(WeightingIndexJob.class);
 		
 		//Mapper and Reducer
-		job.setMapperClass(IndexWeightingMapper.class);
-		job.setReducerClass(IndexWeightingReducer.class);
+		job.setMapperClass(WeightingIndexMapper.class);
+		job.setReducerClass(WeightingIndexReducer.class);
 		
 		//job.setNumReduceTasks(1);
 		
 		// Map output
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(WordIndexWithoutPosition.class);
+		job.setMapOutputValueClass(WeightingIndex.class);
 		
 		
-		TableMapReduceUtil.initTableReducerJob("10300240065_31_wikiIndex", IndexWeightingReducer.class, job); 
+		TableMapReduceUtil.initTableReducerJob("10300240065_31_wikiIndex", WeightingIndexReducer.class, job); 
 		
 		// Input and output format
 		job.setInputFormatClass(XmlInputFormat.class);

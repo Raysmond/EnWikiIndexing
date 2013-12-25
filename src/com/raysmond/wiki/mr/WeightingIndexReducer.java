@@ -11,21 +11,21 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
 
 import com.raysmond.wiki.util.CounterUtil;
-import com.raysmond.wiki.writable.WordIndexWithoutPosition;
+import com.raysmond.wiki.writable.WeightingIndex;
 
-public class IndexWeightingReducer extends
-		TableReducer<Text, WordIndexWithoutPosition, Text> {
+public class WeightingIndexReducer extends
+		TableReducer<Text, WeightingIndex, Text> {
 
 	@Override
-	public void reduce(Text key, Iterable<WordIndexWithoutPosition> values,
+	public void reduce(Text key, Iterable<WeightingIndex> values,
 			Context context) throws IOException, InterruptedException {
-		ArrayList<WordIndexWithoutPosition> list = new ArrayList<WordIndexWithoutPosition>();
-		for (WordIndexWithoutPosition index : values) {
-			list.add(new WordIndexWithoutPosition(index));
+		ArrayList<WeightingIndex> list = new ArrayList<WeightingIndex>();
+		for (WeightingIndex index : values) {
+			list.add(new WeightingIndex(index));
 		}
 		CounterUtil.countWord();
 		CounterUtil.updateMaxWordAppearance(list.size(), key.toString());
-		WordIndexWithoutPosition.numberOfDocumentsWithTerm = list.size();
+		WeightingIndex.numberOfDocumentsWithTerm = list.size();
 		
 		// Sort posting list by term weighting
 		Collections.sort(list);
@@ -33,7 +33,7 @@ public class IndexWeightingReducer extends
 		StringBuilder str = new StringBuilder();
 		str.append(list.size()).append(" ");
 
-		Iterator<WordIndexWithoutPosition> it = list.iterator();
+		Iterator<WeightingIndex> it = list.iterator();
 		Long lastId = Long.parseLong(it.next().getArticleId());
 		str.append(lastId);
 
@@ -41,7 +41,7 @@ public class IndexWeightingReducer extends
 
 		int count = 0;
 		while (it.hasNext()) {
-			WordIndexWithoutPosition index = it.next();
+			WeightingIndex index = it.next();
 			str.append(" ").append(
 					Long.parseLong(index.getArticleId()) - lastId);
 
