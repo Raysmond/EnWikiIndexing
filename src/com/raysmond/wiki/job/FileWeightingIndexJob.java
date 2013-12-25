@@ -53,7 +53,7 @@ public class FileWeightingIndexJob extends IndexJob {
 		job.setMapperClass(FileIndexingMapper.class);
 		job.setReducerClass(FileIndexingReducer.class);
 
-		//job.setNumReduceTasks(1);
+		// job.setNumReduceTasks(1);
 
 		// Map output
 		job.setMapOutputKeyClass(Text.class);
