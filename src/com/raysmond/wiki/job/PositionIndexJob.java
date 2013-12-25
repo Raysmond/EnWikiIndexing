@@ -14,6 +14,12 @@ import com.raysmond.wiki.util.XmlInputFormat;
 import com.raysmond.wiki.writable.IndexList;
 import com.raysmond.wiki.writable.PositionIndex;
 
+/**
+ * PositionIndexJob
+ * Create an inverted indexes with full positions in article.
+ * 
+ * @author Raysmond
+ */
 public class PositionIndexJob extends IndexJob {
 
 	public static void main(String[] args) throws Exception {
