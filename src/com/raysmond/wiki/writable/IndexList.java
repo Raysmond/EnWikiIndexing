@@ -4,6 +4,13 @@ import java.util.Iterator;
 
 import org.apache.hadoop.io.Writable;
 
+/**
+ * IndexList base class
+ * 
+ * @author Raysmond
+ *
+ * @param <E>
+ */
 public class IndexList<E extends Writable> extends
 		ArrayListWritable<E> {
 	private static final long serialVersionUID = -2838690040583088632L;

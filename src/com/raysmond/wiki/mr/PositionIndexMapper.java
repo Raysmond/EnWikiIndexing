@@ -36,7 +36,8 @@ public class PositionIndexMapper extends Mapper<LongWritable,Text,Text,PositionI
 		String[] words = text.split("[\\s+|[\\p{Punct}]+]+");
 		for(String word: words){
 			CounterUtil.updateMaxWordLength(word);
-			this.addWord(id,word,pos++);
+			if(word.length()<=WikiPageUtil.MAX_WORD_LENGTH)
+				addWord(id,word,pos++);
 		}
 		
 		Iterator<String> it = result.keySet().iterator();

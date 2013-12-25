@@ -9,6 +9,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.Text;
 
+/**
+ * A common helper class for process wiki page XML
+ * 
+ * @author Raysmond
+ */
 public class WikiPageUtil {
 	private static final Pattern REF = Pattern.compile("<ref>.*?</ref>");
 	private static final Pattern LANG_LINKS = Pattern.compile("\\[\\[[a-z\\-]+:[^\\]]+\\]\\]");
@@ -17,8 +22,10 @@ public class WikiPageUtil {
 	private static final Pattern HTML_TAG = Pattern.compile("<[^!][^>]*>");
 	private static final Pattern HTML_COMMENT = Pattern.compile("<!--.*?-->", Pattern.DOTALL);
 	
+	public final static int MAX_WORD_LENGTH = 255;
+	
 	/**
-	 * Parse article XML
+	 * Parse article from XML
 	 * 
 	 * @param tag
 	 * @param article

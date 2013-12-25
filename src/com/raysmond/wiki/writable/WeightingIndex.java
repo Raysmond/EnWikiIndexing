@@ -9,13 +9,19 @@ import org.apache.hadoop.io.WritableComparable;
 
 import com.raysmond.wiki.util.CounterUtil;
 
+/**
+ * WeightingIndex
+ * An index class with page id, position count and weighting value 
+ * 
+ * @author Raysmond
+ */
 public class WeightingIndex implements WritableComparable<WeightingIndex> {
 	// The unique id of the page
 	private String articleId;
 	private int positionCount = 0;
-	
 	private long weighting = 0;
 	
+	// the word occurs in how many pages
 	public static long numberOfDocumentsWithTerm = 0;
 
 	public WeightingIndex() {

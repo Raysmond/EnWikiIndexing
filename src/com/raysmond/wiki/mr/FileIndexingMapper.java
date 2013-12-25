@@ -23,8 +23,6 @@ public class FileIndexingMapper extends
 
 	private HashMap<String, WeightingIndex> result;
 
-	public final static int MAX_WORD_LENGTH = 255;
-
 	public void map(LongWritable key, Text page, Context context)
 			throws IOException, InterruptedException {
 		String id = WikiPageUtil.parseXMLTag("id", page);
@@ -36,7 +34,7 @@ public class FileIndexingMapper extends
 		String[] words = text.split("[\\s+|[\\p{Punct}]+]+");
 		for (String word : words) {
 			CounterUtil.updateMaxWordLength(word);
-			if (word.length() <= MAX_WORD_LENGTH)
+			if (word.length() <= WikiPageUtil.MAX_WORD_LENGTH)
 				addWord(id, word, pos++);
 		}
 
