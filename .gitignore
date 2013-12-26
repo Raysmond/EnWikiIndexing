@@ -6,6 +6,7 @@ input
 output
 output*
 index*
+full*
 release
 *~
 .classpath

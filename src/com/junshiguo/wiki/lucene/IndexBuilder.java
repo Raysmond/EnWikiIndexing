@@ -35,6 +35,7 @@ public class IndexBuilder {
 		indexBuilder.setInputPath(args[0]);
 		indexBuilder.setOutputPath(args[1]);
 		File[] files = new File(indexBuilder.getInputPath()).listFiles();
+		long startTime = System.currentTimeMillis();
 		for (File file : files) {
 			if (file.isDirectory() == false) {
 				System.out.println("Start to build indexes from : "
@@ -45,6 +46,7 @@ public class IndexBuilder {
 		}
 		System.out.println("Building indexes finished. Index path: \n"
 				+ (new File(indexBuilder.getOutputPath())).getAbsolutePath());
+		System.out.println("Index built in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
 	}
 
 	@SuppressWarnings("deprecation")
@@ -58,16 +60,15 @@ public class IndexBuilder {
 
 		String row = null;
 
+		int count = 0;
 		while ((row = reader.readLine()) != null) {
 			row = row.trim();
-			String Arow[] = row.split("\\s+");
+			String[] values = row.split("\\s+", 2);
 			org.apache.lucene.document.Document document = new org.apache.lucene.document.Document();
 
-			document.add(new Field("key", Arow[0], Field.Store.YES,
+			document.add(new Field("key", values[0], Field.Store.YES,
 					Field.Index.ANALYZED));
-			document.add(new Field("value", row.substring(Arow[0].length())
-					.trim(), Field.Store.YES, Field.Index.NOT_ANALYZED));
-
+			document.add(new Field("value", values[1].trim(), Field.Store.YES, Field.Index.NOT_ANALYZED));
 			indexWriter.addDocument(document);
 		}
 		indexWriter.close();
