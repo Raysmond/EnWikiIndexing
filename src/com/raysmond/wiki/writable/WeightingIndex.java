@@ -72,40 +72,36 @@ public class WeightingIndex implements WritableComparable<WeightingIndex> {
 		return this.positionCount;
 	}
 
-	public double getWeighting() {
-		if (numberOfDocumentsWithTerm != 0 && pageCount != 0 && weighting == 0) {
-			double weight = positionCount
-					* Math.log((double) (pageCount)
-							/ (double) (numberOfDocumentsWithTerm));
-			weighting = (long) (weight * 1000000);
-		}
-		return weighting;
+//	public long getWeighting() {
+//		if (numberOfDocumentsWithTerm != 0 && pageCount != 0 && weighting == 0) {
+//			double weight = positionCount
+//					* Math.log((double) (pageCount)
+//							/ (double) (numberOfDocumentsWithTerm));
+//			weighting = (long) (weight * 1000000);
+//		}
+//		return weighting;
+//	}
+
+	public long getWeight(long totalPage, long termPages) {
+		double w = positionCount * Math.log((double) (totalPage) / (double) (termPages));
+		return (long) (w * 1000000);
 	}
 
 	public boolean equals(WeightingIndex obj) {
 		return articleId == obj.articleId;
 	}
-	
-	public int hashCode(){
+
+	public int hashCode() {
 		return articleId.hashCode();
 	}
 
 	@Override
 	public int compareTo(WeightingIndex o) {
-		if (pageCount == 0) {
-			long v = this.articleId - o.articleId;
-			if (v > 0)
-				return 1;
-			if (v < 0)
-				return -1;
-			return 0;
-		} else {
-			double v = this.getWeighting() - o.getWeighting();
-			if (v < 0)
-				return 1;
-			if (v > 0)
-				return -1;
-			return 0;
-		}
+		long v = this.articleId - o.articleId;
+		if (v > 0)
+			return 1;
+		if (v < 0)
+			return -1;
+		return 0;
 	}
 }
