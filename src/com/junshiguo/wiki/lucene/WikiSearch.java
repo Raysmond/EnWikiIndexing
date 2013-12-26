@@ -2,6 +2,7 @@ package com.junshiguo.wiki.lucene;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Scanner;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -26,22 +27,34 @@ public class WikiSearch {
 	public String searchString = null;
 	
 	public static void main(String[] args) throws IOException, ParseException{
-		if(args.length <3 ){
-			System.out.println("Please set wordIndexWeight and idTitle index path");
-			System.exit(1);
-		}
 		WikiSearch wikiSearch = new WikiSearch();
-		wikiSearch.setSearchString(args[0]);
-		wikiSearch.setWIWIndexPath(args[1]);
-		wikiSearch.setITIndexPath(args[2]);
-		if(args.length > 3 && args[3] != null){
-			try{
-				wikiSearch.setRetNo(Integer.parseInt(args[2]));
-			}catch(Exception e){
-				System.out.println("Return number setting failed...");
+		if(args.length < 3 ){
+			System.out.println("Please set wordIndexWeight and idTitle index path");
+		    Scanner in = new Scanner(System.in);
+		    System.out.print("Index path: ");
+		    wikiSearch.setWIWIndexPath(in.next());
+		    System.out.print("Title path: ");
+			wikiSearch.setITIndexPath(in.next());
+		    String keyword = null;
+		    System.out.print("Type some key words: \n>");
+		    while(!(keyword = in.next()).equals("\\exit")){
+		    	wikiSearch.setSearchString(keyword.toLowerCase());
+		    	wikiSearch.doSearch(100);
+		    	System.out.print("> ");
+		    }
+		}else{
+			wikiSearch.setWIWIndexPath(args[1]);
+			wikiSearch.setITIndexPath(args[2]);
+			wikiSearch.setSearchString(args[0]);
+			if(args.length > 3 && args[3] != null){
+				try{
+					wikiSearch.setRetNo(Integer.parseInt(args[2]));
+				}catch(Exception e){
+					System.out.println("Return number setting failed...");
+				}
 			}
+			wikiSearch.doSearch(100);
 		}
-		wikiSearch.doSearch(100);
 	}
 	
 	@SuppressWarnings("deprecation")

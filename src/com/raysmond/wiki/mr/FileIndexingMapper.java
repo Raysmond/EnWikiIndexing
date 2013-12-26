@@ -57,8 +57,8 @@ public class FileIndexingMapper extends
 			output.addPosition(position);
 		} else {
 			WeightingIndex index = new WeightingIndex(articleId);
-			result.put(word, index);
 			index.addPosition(position);
+			result.put(word, index);
 		}
 	}
 }

@@ -41,6 +41,7 @@ public class FileWeightingIndexJob extends IndexJob {
 		}
 		if(args.length>=4)
 			job.setPagesCount(Long.parseLong(args[3]));
+		
 		job.call();
 	}
 	

@@ -4,7 +4,8 @@
 target
 input
 output
-output1
+output*
+index*
 release
 *~
 .classpath
