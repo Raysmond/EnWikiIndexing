@@ -18,7 +18,6 @@ import com.raysmond.wiki.mr.PositionIndexMapper;
 import com.raysmond.wiki.mr.PositionIndexReducer;
 import com.raysmond.wiki.mr.WeightingIndexMapper;
 import com.raysmond.wiki.mr.WeightingIndexReducer;
-import com.raysmond.wiki.util.CounterUtil;
 import com.raysmond.wiki.util.XmlInputFormat;
 import com.raysmond.wiki.writable.WeightingIndex;
 

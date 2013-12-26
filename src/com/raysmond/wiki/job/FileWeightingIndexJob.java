@@ -4,12 +4,14 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 
 import com.raysmond.wiki.mr.FileIndexingMapper;
 import com.raysmond.wiki.mr.FileIndexingReducer;
+import com.raysmond.wiki.util.CounterTag;
 import com.raysmond.wiki.util.XmlInputFormat;
 import com.raysmond.wiki.writable.IndexList;
 import com.raysmond.wiki.writable.WeightingIndex;
@@ -24,6 +26,8 @@ import com.raysmond.wiki.writable.WeightingIndex;
  */
 public class FileWeightingIndexJob extends IndexJob {
 
+	private long pagesCount = 0;
+	
 	public static void main(String[] args) throws Exception {
 		if (args.length < 2) {
 			System.err.println("Both input and output path must be set!");
@@ -35,20 +39,23 @@ public class FileWeightingIndexJob extends IndexJob {
 		if(args.length>=3){
 			job.setReducerNum(Integer.parseInt(args[2]));
 		}
+		if(args.length>=4)
+			job.setPagesCount(Long.parseLong(args[3]));
 		job.call();
+	}
+	
+	public long getPagesCount(){
+		return pagesCount;
+	}
+	
+	public void setPagesCount(long count){
+		pagesCount = count;
 	}
 	
 	@Override
 	public Job initialize(Configuration conf) throws IOException {
-		// zookeeper
-		// conf.set("mapred.job.tracker", "localhost:9001");
-		// conf.set("hbase.zookeeper.quorum", "localhost");
-		// conf.set("hbase.zookeeper.property.clientPort", "2222");
-
-		// input format
-		// conf.set(XmlInputFormat.START_TAG_KEY, "<page>");
-		// conf.set(XmlInputFormat.END_TAG_KEY, "</page>");
-
+		conf.setLong("total_pages", getPagesCount());
+		
 		// Job initialization
 		Job job = new Job(conf, "File indexing job");
 		job.setJarByClass(FileWeightingIndexJob.class);
@@ -66,7 +73,8 @@ public class FileWeightingIndexJob extends IndexJob {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
 		job.setOutputValueClass(IndexList.class);
-
+		
 		return job;
 	}
+	
 }

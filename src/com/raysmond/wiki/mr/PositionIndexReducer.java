@@ -7,7 +7,6 @@ import java.util.Iterator;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.io.Text;
 
-import com.raysmond.wiki.util.CounterUtil;
 import com.raysmond.wiki.writable.IndexList;
 import com.raysmond.wiki.writable.PositionIndex;
 
@@ -36,7 +35,5 @@ public class PositionIndexReducer extends TableReducer<Text, PositionIndex, Text
 		
 		context.write(key, list);
 
-		CounterUtil.countWord();
-		CounterUtil.UpdateMaxWordOccurence(list.size(), key.toString());
 	}
 }

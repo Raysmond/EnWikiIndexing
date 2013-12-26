@@ -8,8 +8,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import com.raysmond.wiki.util.CounterUtil;
-
 abstract class IndexJob {
 	private String inputPath;
 	private String outputPath;
@@ -25,11 +23,6 @@ abstract class IndexJob {
 	
 	public void call() throws Exception {
 		Configuration conf = new Configuration();
-		conf.setLong("page_count", 0);
-//		conf.setLong("total_words", 0);
-//		conf.setInt("max_word_length", 0);
-//		conf.setInt("max_word_occurence", 0);
-//		conf.setInt("max_word_occurence_count", 0);
 		
 		Job job = initialize(conf);
 		job.setNumReduceTasks(this.getReducerNum());
@@ -42,14 +35,11 @@ abstract class IndexJob {
 		long startTime = System.currentTimeMillis();
 		job.waitForCompletion(true);
 		System.out.println("Job Finished in " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds");
-		showCounting(job.getConfiguration());
+		afterJob(job);
 	}
 	
-	public void showCounting(Configuration conf){
-//		System.out.println("Total pages: "+ conf.getLong("page_count", 0));
-//		System.out.println("Total words: "+ conf.getLong("total_words",0));
-//		System.out.println("Max word occurence: "+ conf.getInt("max_word_occurence_count", 0) + "=>" + conf.getStrings("max_word_occurence"));
-//		System.out.println("Max word length: "+ conf.getInt("max_word_length", 0));
+	public void afterJob(Job job) throws IOException{
+		// do something
 	}
 
 	public void setInputPath(String inputPath) {

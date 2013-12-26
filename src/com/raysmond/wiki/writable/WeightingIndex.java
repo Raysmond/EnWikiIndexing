@@ -8,11 +8,9 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 
-import com.raysmond.wiki.util.CounterUtil;
-
 /**
- * WeightingIndex
- * An index class with page id, position count and weighting value 
+ * WeightingIndex An index class with page id, position count and weighting
+ * value
  * 
  * @author Raysmond
  */
@@ -21,7 +19,7 @@ public class WeightingIndex implements WritableComparable<WeightingIndex> {
 	private Long articleId;
 	private int positionCount = 0;
 	private long weighting = 0;
-	
+
 	// the word occurs in how many pages
 	public static long numberOfDocumentsWithTerm = 0;
 	public static long pageCount = 0;
@@ -29,8 +27,8 @@ public class WeightingIndex implements WritableComparable<WeightingIndex> {
 	public WeightingIndex() {
 
 	}
-	
-	public WeightingIndex(WeightingIndex index){
+
+	public WeightingIndex(WeightingIndex index) {
 		this.articleId = index.articleId;
 		this.positionCount = index.positionCount;
 	}
@@ -57,37 +55,57 @@ public class WeightingIndex implements WritableComparable<WeightingIndex> {
 		return String.valueOf(articleId);
 	}
 
-	
 	public boolean addPosition(Integer pos) {
-		 positionCount++;
-		 return true;
+		positionCount++;
+		return true;
 	}
 
-	public void setArticleId(long id){
+	public void setArticleId(long id) {
 		this.articleId = id;
 	}
-	
+
 	public long getArticleId() {
 		return articleId;
 	}
-	
-	public int getPositionCount(){
+
+	public int getPositionCount() {
 		return this.positionCount;
 	}
-	
-	public double getWeighting(){
-		if(numberOfDocumentsWithTerm!=0 && pageCount!=0 && weighting == 0){
-			double weight = positionCount * Math.log((double)(pageCount)/(double)(numberOfDocumentsWithTerm));
-			weighting = (long)(weight * 1000000);
+
+	public double getWeighting() {
+		if (numberOfDocumentsWithTerm != 0 && pageCount != 0 && weighting == 0) {
+			double weight = positionCount
+					* Math.log((double) (pageCount)
+							/ (double) (numberOfDocumentsWithTerm));
+			weighting = (long) (weight * 1000000);
 		}
 		return weighting;
 	}
 
+	public boolean equals(WeightingIndex obj) {
+		return articleId == obj.articleId;
+	}
+	
+	public int hashCode(){
+		return articleId.hashCode();
+	}
+
 	@Override
 	public int compareTo(WeightingIndex o) {
-		long v =  this.articleId - o.articleId;
-		if(v>0) return 1;
-		if(v<0) return -1;
-		return 0;
+		if (pageCount == 0) {
+			long v = this.articleId - o.articleId;
+			if (v > 0)
+				return 1;
+			if (v < 0)
+				return -1;
+			return 0;
+		} else {
+			double v = this.getWeighting() - o.getWeighting();
+			if (v < 0)
+				return 1;
+			if (v > 0)
+				return -1;
+			return 0;
+		}
 	}
 }

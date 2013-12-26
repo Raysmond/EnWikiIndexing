@@ -5,20 +5,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapreduce.Counters;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.JobID;
 
-import com.raysmond.wiki.util.CounterUtil;
+import com.raysmond.wiki.util.CounterTag;
 import com.raysmond.wiki.writable.ArrayListWritable;
 import com.raysmond.wiki.writable.IndexList;
 import com.raysmond.wiki.writable.WeightingIndex;
 
 /**
- * FileIndexingReducer
- * Reduce all indexes with term weighting, and store the result into HDFS
+ * FileIndexingReducer Reduce all indexes with term weighting, and store the
+ * result into HDFS
  * 
  * @author Raysmond
- *
+ * 
  */
 public class FileIndexingReducer extends
 		TableReducer<Text, WeightingIndex, Text> {
@@ -32,13 +38,22 @@ public class FileIndexingReducer extends
 			WeightingIndex index = new WeightingIndex(iter.next());
 			list.add(index);
 		}
+		
+		// update total words counter
+		context.getCounter(CounterTag.TOTAL_WORDS).increment(1);
+		// update max word occurence
+		long maxOccurence = context.getCounter(
+				CounterTag.MAX_WORD_OCCURENCE_COUNT).getValue();
+		if (list.size() > maxOccurence)
+			context.getCounter(CounterTag.MAX_WORD_OCCURENCE_COUNT).setValue(
+					list.size());
 
-//		WeightingIndex.pageCount = context.getConfiguration().getLong("page_count", 0);
-//		WeightingIndex.numberOfDocumentsWithTerm = list.size();
+		WeightingIndex.pageCount = context.getConfiguration().getLong("total_pages",0);
+		WeightingIndex.numberOfDocumentsWithTerm = list.size();
 
 		// Sort posting list by term weighting
 		Collections.sort(list);
-
+		
 		// Compress article ids
 		long lastId = 0L;
 		Iterator<WeightingIndex> it = list.iterator();
@@ -50,8 +65,5 @@ public class FileIndexingReducer extends
 		}
 
 		context.write(key, list);
-
-		CounterUtil.countWord();
-		CounterUtil.UpdateMaxWordOccurence(list.size(), key.toString());
 	}
 }

@@ -8,7 +8,6 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import com.raysmond.wiki.util.CounterUtil;
 import com.raysmond.wiki.util.WikiPageUtil;
 import com.raysmond.wiki.writable.WeightingIndex;
 
@@ -37,9 +36,8 @@ public class WeightingIndexMapper extends
 		int pos = 0;
 		String[] words = text.split("[\\s+|[\\p{Punct}]+]+");
 		for (String word : words) {
-			CounterUtil.updateMaxWordLength(word);
 			if (word.length() <= MAX_WORD_LENGTH) 
-				addWord(id, word, pos++);
+				addWord(id, word.toLowerCase(), pos++);
 		}
 
 		Iterator<String> it = result.keySet().iterator();
@@ -48,7 +46,6 @@ public class WeightingIndexMapper extends
 			context.write(new Text(word.toLowerCase()), result.get(word));
 		}
 		
-		CounterUtil.countPage();
 	}
 
 	/**

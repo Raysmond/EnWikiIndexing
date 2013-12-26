@@ -10,7 +10,6 @@ import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
 
-import com.raysmond.wiki.util.CounterUtil;
 import com.raysmond.wiki.writable.WeightingIndex;
 
 public class WeightingIndexReducer extends
@@ -23,8 +22,6 @@ public class WeightingIndexReducer extends
 		for (WeightingIndex index : values) {
 			list.add(new WeightingIndex(index));
 		}
-		CounterUtil.countWord();
-		CounterUtil.UpdateMaxWordOccurence(list.size(), key.toString());
 		WeightingIndex.numberOfDocumentsWithTerm = list.size();
 		
 		// Sort posting list by term weighting
