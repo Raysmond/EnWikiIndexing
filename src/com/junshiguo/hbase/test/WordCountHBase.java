@@ -1,4 +1,4 @@
-package hbaseTest;
+package com.junshiguo.hbase.test;
 
 import java.io.IOException;
 import java.util.Iterator;

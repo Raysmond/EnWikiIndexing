@@ -9,7 +9,12 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import com.raysmond.wiki.util.XmlInputFormat;
 
-// TODO
+/**
+ * Build an id-to-title map for full English Wikipedia pages
+ * 
+ * @author Junshi Guo
+ *
+ */
 public class IdTitleMappingJob extends IndexJob {
 
 	public static void main(String[] args) throws Exception {

@@ -1,4 +1,4 @@
-package wikiSearch;
+package com.junshiguo.wiki.lucene;
 
 import java.io.BufferedReader;
 import java.io.File;
