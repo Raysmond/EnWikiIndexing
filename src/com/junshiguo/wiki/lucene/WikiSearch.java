@@ -17,6 +17,8 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /*
  * wordIndexWeight
@@ -40,10 +42,12 @@ public class WikiSearch {
 			wikiSearch.setITIndexPath(in.next());
 			String keyword = null;
 			System.out.print("Type some key words: \n>");
-			while ((keyword = in.nextLine())!=null) {
-				if(keyword.equals("")) continue;
+			while ((keyword = in.nextLine()) != null) {
+				if (keyword.equals(""))
+					continue;
 				wikiSearch.setSearchString(keyword.toLowerCase());
-				wikiSearch.doSearch(10);
+				JSONObject result = wikiSearch.doSearch(10);
+				System.out.println(result.toString());
 				System.out.print("> ");
 			}
 		} else {
@@ -62,7 +66,7 @@ public class WikiSearch {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void doSearch(int topNo) throws IOException, ParseException {
+	public JSONObject doSearch(int topNo) throws IOException, ParseException {
 		// query
 		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_46);
 		QueryParser parser = new QueryParser(Version.LUCENE_46, "key", analyzer);
@@ -73,50 +77,81 @@ public class WikiSearch {
 		TopScoreDocCollector collector = TopScoreDocCollector.create(topNo,
 				true);
 		searcher.search(query, collector);
-		ScoreDoc[] hits = collector.topDocs().scoreDocs;
+		ScoreDoc[] words = collector.topDocs().scoreDocs;
 
-		System.out.println("Get results: " + hits.length);
-		for (int i = 0; i < hits.length; i++) {
-			int docId = hits[i].doc;
+		JSONObject result = new JSONObject();
+		JSONArray results = new JSONArray();
+
+		result.put("resultCount", words.length);
+
+		// scan all matched words
+		for (int i = 0; i < words.length; i++) {
+			int docId = words[i].doc;
 			Document doc = searcher.doc(docId);
 			String index = doc.get("value").trim();
 			String[] indexes = index.split("\\s+", topNo + 2);
-			int resultCount = indexes.length - (indexes.length == (topNo+2) ?  2 : 1);
-			int[] ids = new int[resultCount];
+			int pageCount = indexes.length
+					- (indexes.length == (topNo + 2) ? 2 : 1);
 			
-			System.out.println("\nResult "+(i+1)+" : "+doc.get("key"));
-			int articleId = 0;
-			for (int j = 0; j < resultCount; j++) {
-				ids[j] = Integer.parseInt(indexes[j + 1]);
-				articleId += ids[j];
-				subSearch(articleId + "");
+			// single result item
+			JSONObject item = new JSONObject();
+			item.put("word", doc.get("key"));
+			item.put("pageCount", pageCount);
+			JSONArray titleArray = new JSONArray();
+
+			int pid = 0;
+			for (int j = 0; j < pageCount; j++) {
+				pid += Integer.parseInt(indexes[j + 1]);
+				String title = searchTitle(String.valueOf(pid));
+				
+				JSONObject page = new JSONObject();
+				page.put("index", j+1);
+				page.put("pageId", pid);
+				page.put("title", title);
+				titleArray.put(j, page);
 			}
+
+			item.put("pages", titleArray);
+			results.put(item);
 		}
+		result.put("result", results);
+		return result;
 	}
 
-	//
+	/**
+	 * Search page title by page id
+	 * @param articleId
+	 * @return String|null page title
+	 * @throws ParseException
+	 * @throws IOException
+	 */
 	@SuppressWarnings("deprecation")
-	public void subSearch(String articleId) throws ParseException, IOException {
+	public String searchTitle(String articleId) throws ParseException,
+			IOException {
 		// query
 		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_46);
 		QueryParser parser = new QueryParser(Version.LUCENE_46, "key", analyzer);
 		Query query = parser.parse(articleId);
+
 		// search in ITIndexPath
 		FSDirectory dir = FSDirectory.open(new File(ITIndexPath));
 		IndexReader reader = IndexReader.open(dir);
 		IndexSearcher searcher = new IndexSearcher(reader);
-		TopScoreDocCollector collector = TopScoreDocCollector.create(retNo,
-				true);
+		TopScoreDocCollector collector = TopScoreDocCollector.create(1, true);
+
+		// do search
 		searcher.search(query, collector);
 		ScoreDoc[] hits = collector.topDocs().scoreDocs;
-		// output
-		for (int i = 0; i < hits.length; i++) {
-			int docId = hits[i].doc;
+
+		String title = null;
+		if (hits.length > 0) {
+			int docId = hits[0].doc;
 			Document doc = searcher.doc(docId);
-			System.out.println(doc.get("key") + " " + doc.get("value"));
+			title = doc.get("value");
 		}
 		dir.close();
 		reader.close();
+		return title;
 	}
 
 	public String getSearchString() {
