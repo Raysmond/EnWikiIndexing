@@ -36,7 +36,7 @@ public class WikiSearch {
 
 	public static void main(String[] args) throws IOException, ParseException {
 		WikiSearch wikiSearch = new WikiSearch();
-		if (args.length < 3) {
+		if (args.length < 3) { 
 			System.out
 					.println("Please set wordIndexWeight and idTitle index path");
 			Scanner in = new Scanner(System.in);
